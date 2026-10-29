@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>John Nigel Landingin — Systems Builder & IT Developer</title>
+  
+  <meta name="description" content="Portfolio of John Nigel Landingin — Information Technology graduate specializing in C#/.NET desktop architecture, SQL databases, interactive 3D media, and systems administration based in Tarlac City, Philippines.">
+  <meta name="keywords" content="John Nigel Landingin, IT Portfolio, Software Developer, C# .NET, Unity, Systems Administration, Tarlac City">
+  <meta name="author" content="John Nigel Landingin">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="John Nigel Landingin — Portfolio">
+  <meta property="og:description" content="Systems builder, desktop application developer, and IT professional based in Tarlac, Philippines.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+  <!-- Fonts: Space Grotesk (modern technical sans), JetBrains Mono (monospaced metadata), Instrument Serif (humanist accent) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Ambient Top Status Ribbon -->
+  <aside class="status-bar" aria-label="System status">
+    <div class="container status-bar__inner">
+      <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Available for IT & Software Engineering roles</span>
+      </div>
+      <div class="status-meta">
+        <span class="location-tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+          Tarlac City, PH (15.48° N, 120.60° E)
+        </span>
+        <span class="time-tag" id="live-time" title="Local Time in Philippines (UTC+8)">--:--:-- PST</span>
+        <button class="kbd-hint" id="cmd-palette-btn" title="Open Command Palette (Ctrl+K or ⌘K)">
+          <kbd>Ctrl</kbd><kbd>K</kbd>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Navigation -->
+  <header class="site-header">
+    <div class="container header__inner">
+      <a href="#" class="brand" aria-label="Home">
+        <span class="brand__monogram">JNL</span>
+        <span class="brand__name">John Nigel Landingin</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Primary navigation">
+        <ul class="nav__list">
+          <li><a href="#work" class="nav__link">Selected Work</a></li>
+          <li><a href="#experience" class="nav__link">Experience</a></li>
+          <li><a href="#workbench" class="nav__link">Stack & Tools</a></li>
+          <li><a href="#credentials" class="nav__link">Credentials</a></li>
+          <li><a href="#manifesto" class="nav__link">Philosophy</a></li>
+        </ul>
+      </nav>
+
+      <div class="header__actions">
+        <div class="theme-switch" role="group" aria-label="Theme switcher">
+          <button class="theme-btn active" data-theme-val="dark" title="Dark Obsidian theme">Dark</button>
+          <button class="theme-btn" data-theme-val="light" title="Light Editorial Paper theme">Light</button>
+          <button class="theme-btn" data-theme-val="terminal" title="Monochrome Phosphor Terminal">Mono</button>
+        </div>
+        <a href="#contact" class="btn btn--outline btn--sm">Get in Touch</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <!-- Hero / Introduction -->
+    <section class="section hero">
+      <div class="container hero__grid">
+        <div class="hero__bio">
+          <div class="hero__eyebrow">
+            <span class="eyebrow-badge">BS Information Technology • STI College</span>
+            <span class="eyebrow-sep">/</span>
+            <span class="eyebrow-tag">Class of 2026</span>
+          </div>
+
+          <h1 class="hero__title">
+            Building software that survives the real world, from <span class="serif-accent">desktop systems</span> to interactive 3D & field hardware.
+          </h1>
+
+          <p class="hero__lead">
+            I'm <strong>John Nigel Landingin</strong>. I develop reliable offline-first desktop systems in C#/.NET, engineer relational databases, build interactive real-time applications with Unity, and troubleshoot enterprise IT infrastructure down to the motherboard.
+          </p>
+
+          <div class="hero__ctas">
+            <a href="assets/John_Nigel_Landingin_Resume.pdf" download="John_Nigel_Landingin_Resume.pdf" class="btn btn--primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Resume (PDF)
+            </a>
+            <button class="btn btn--ghost" id="hero-copy-email" data-email="landinginjohnnigel@gmail.com">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span>Copy Email</span>
+            </button>
+            <a href="#work" class="btn btn--link">
+              Explore Projects <span class="arrow">↓</span>
+            </a>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat-item">
+              <span class="stat-number">486+</span>
+              <span class="stat-label">Internship Hours (Hexatronics)</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">3+</span>
+              <span class="stat-label">Gov & Enterprise Deployments</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">100%</span>
+              <span class="stat-label">Hardware-to-Code Fluency</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__aside">
+          <div class="portrait-card">
+            <div class="portrait-card__frame">
+              <img src="assets/profile.jpg" alt="Portrait of John Nigel Landingin" class="portrait-img" loading="eager">
+              <div class="portrait-overlay"></div>
+            </div>
+            <div class="portrait-card__caption">
+              <div class="caption-row">
+                <span class="caption-label">Location:</span>
+                <span class="caption-val">Tarlac City, Central Luzon, PH</span>
+              </div>
+              <div class="caption-row">
+                <span class="caption-label">Discipline:</span>
+                <span class="caption-val">IT Systems, C#/.NET, Unity & Hardware</span>
+              </div>
+              <div class="caption-row">
+                <span class="caption-label">Status:</span>
+                <span class="caption-val text-accent">Active & Ready for Relocation / Remote</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Code / Spec Snippet -->
+          <div class="spec-card">
+            <div class="spec-card__header">
+              <span class="terminal-dots"><span></span><span></span><span></span></span>
+              <span class="spec-card__title">operator_profile.json</span>
+            </div>
+            <pre class="spec-code"><code>{
+  <span class="code-key">"engineer"</span>: <span class="code-str">"John Nigel Landingin"</span>,
+  <span class="code-key">"degree"</span>: <span class="code-str">"BS in Information Technology"</span>,
+  <span class="code-key">"school"</span>: <span class="code-str">"STI College Tarlac"</span>,
+  <span class="code-key">"core_stack"</span>: [<span class="code-str">"C#"</span>, <span class="code-str">".NET"</span>, <span class="code-str">"SQL"</span>, <span class="code-str">"Unity"</span>, <span class="code-str">"Linux"</span>],
+  <span class="code-key">"hardware_ready"</span>: <span class="code-bool">true</span>,
+  <span class="code-key">"coffee_tolerant"</span>: <span class="code-bool">true</span>
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 1: Selected Work -->
+    <section id="work" class="section section--border-top">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-badge">01 // Case Studies & Engineering</div>
+          <h2 class="section-title">Selected Projects</h2>
+          <p class="section-subtitle">Real systems built to solve operational bottlenecks, manage logistics, and render interactive media.</p>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar" role="tablist" aria-label="Project categories">
+          <button class="filter-tab active" data-filter="all">All Projects (3)</button>
+          <button class="filter-tab" data-filter="desktop">Desktop & Logistics</button>
+          <button class="filter-tab" data-filter="multimedia">3D & Interactive Media</button>
+          <button class="filter-tab" data-filter="records">Enterprise Systems & LGU</button>
+        </div>
+
+        <div class="projects-grid">
+          <!-- Project 1: Logistics Capstone -->
+          <article class="project-card featured" data-category="desktop">
+            <div class="project-card__header">
+              <div class="project-meta">
+                <span class="project-tag tag-primary">Capstone Architecture</span>
+                <span class="project-year">2026</span>
+              </div>
+              <h3 class="project-title">Transport & Logistics Delivery Management System</h3>
+              <p class="project-pitch">
+                An offline-first desktop management suite built for high-throughput regional distribution fleets. Engineered to handle driver routing, real-time cargo manifests, crew allocation, and automated billing calculation without relying on unstable internet connections.
+              </p>
+            </div>
+
+            <div class="project-deepdive">
+              <div class="deepdive-col">
+                <h4 class="deepdive-title">The Operational Challenge</h4>
+                <p>Regional transit depots frequently experience intermittent connectivity. Web-dependent solutions failed during network drops, stalling truck turnarounds and losing load manifests.</p>
+              </div>
+              <div class="deepdive-col">
+                <h4 class="deepdive-title">Technical Solution</h4>
+                <p>Architected an offline desktop application using C# (.NET) integrated with SQL Server/MySQL. Designed an atomic transactional schema to ensure tamper-proof trip logging, automated invoice generation, and instant localized reporting.</p>
+              </div>
+            </div>
+
+            <div class="project-spec-strip">
+              <div class="spec-pill"><span>Language:</span> C# (.NET Framework / Core)</div>
+              <div class="spec-pill"><span>Database:</span> SQL Server / MySQL Relational Schema</div>
+              <div class="spec-pill"><span>Pattern:</span> Layered Architecture, Offline Cache</div>
+              <div class="spec-pill"><span>Key Feature:</span> Automated Billing & Crew Manifests</div>
+            </div>
+
+            <div class="project-card__footer">
+              <span class="project-status">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Delivered & Defended at STI College
+              </span>
+              <button class="btn btn--outline btn--sm project-inspect-btn" data-project="logistics">
+                View Architecture Breakdown
+              </button>
+            </div>
+          </article>
+
+          <!-- Project 2: Hexatronics 3D Showcase -->
+          <article class="project-card" data-category="multimedia">
+            <div class="project-card__header">
+              <div class="project-meta">
+                <span class="project-tag">Hexatronics Inc.</span>
+                <span class="project-year">2026</span>
+              </div>
+              <h3 class="project-title">Interactive 3D Product Showcase</h3>
+              <p class="project-pitch">
+                A real-time interactive 3D product simulation built in Unity to showcase electronic and technical hardware components to enterprise clients without needing physical prototypes in the room.
+              </p>
+            </div>
+
+            <div class="project-deepdive">
+              <div class="deepdive-col">
+                <h4 class="deepdive-title">Asset Pipeline & Optimization</h4>
+                <p>Synthesized AI-assisted 3D base assets with custom polygon decimation, UV re-mapping, and PBR textures. Optimized shaders to maintain steady 60 FPS performance on standard client laptops.</p>
+              </div>
+              <div class="deepdive-col">
+                <h4 class="deepdive-title">Interactive Mechanics</h4>
+                <p>Scripted smooth camera orbits, exploded-view component breakdowns, and interactive data hotspots revealing specifications on click.</p>
+              </div>
+            </div>
+
+            <div class="project-spec-strip">
+              <div class="spec-pill"><span>Engine:</span> Unity 3D Engine</div>
+              <div class="spec-pill"><span>Scripting:</span> C# Physics & Camera Controller</div>
+              <div class="spec-pill"><span>Graphics:</span> PBR Shaders, Texture Baking</div>
+              <div class="spec-pill"><span>Scope:</span> Enterprise Product Catalog</div>
+            </div>
+
+            <div class="project-card__footer">
+              <span class="project-status">Production Demo for Client Demonstrations</span>
+              <button class="btn btn--outline btn--sm project-inspect-btn" data-project="hexatronics">
+                View Tech Notes
+              </button>
+            </div>
+          </article>
+
+          <!-- Project 3: LGU Municipal Database & Workflow -->
+          <article class="project-card" data-category="records">
+            <div class="project-card__header">
+              <div class="project-meta">
+                <span class="project-tag">City of Tarlac & LGU</span>
+                <span class="project-year">2023 – 2024</span>
+              </div>
+              <h3 class="project-title">Municipal Records & Welfare Assistance Pipeline</h3>
+              <p class="project-pitch">
+                High-volume digital records processing and workstation infrastructure for the City Government of Tarlac (PESO) and Barangay Balete. Accelerated processing of citizen benefit registries (including 4Ps beneficiaries) while maintaining zero-loss physical-to-digital parity.
+              </p>
+            </div>
+
+            <div class="project-deepdive">
+              <div class="deepdive-col">
+                <h4 class="deepdive-title">Scale & Integrity</h4>
+                <p>Migrated manual paper workflows to standardized digital database templates. Performed integrity validation across thousands of entries, eliminating duplicate records and reducing citizen verification wait times.</p>
+              </div>
+              <div class="deepdive-col">
+                <h4 class="deepdive-title">Hardware Support</h4>
+                <p>Diagnosed, maintained, and configured government office workstations, local network peripherals, and secure backup routines.</p>
+              </div>
+            </div>
+
+            <div class="project-spec-strip">
+              <div class="spec-pill"><span>System:</span> Relational Database Entry & Validation</div>
+              <div class="spec-pill"><span>Infrastructure:</span> Windows Desktop Fleet, LAN Cabling</div>
+              <div class="spec-pill"><span>Impact:</span> High-volume citizen record processing</div>
+            </div>
+
+            <div class="project-card__footer">
+              <span class="project-status">Operational across Municipal Departments</span>
+              <button class="btn btn--outline btn--sm project-inspect-btn" data-project="municipal">
+                View Workflow Notes
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Work Experience -->
+    <section id="experience" class="section section--border-top">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-badge">02 // Professional Trajectory</div>
+          <h2 class="section-title">Work & Internships</h2>
+          <p class="section-subtitle">Real responsibilities, physical hardware, enterprise media, and municipal operations.</p>
+        </div>
+
+        <div class="timeline">
+          <!-- Item 1 -->
+          <div class="timeline-item">
+            <div class="timeline-meta">
+              <span class="timeline-date">Feb 2026 – May 2026</span>
+              <span class="timeline-duration">486 Hours Completed</span>
+              <span class="timeline-location">Subic / Regional Office</span>
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-header">
+                <h3 class="timeline-role">Systems & Multimedia Development Intern</h3>
+                <h4 class="timeline-company">Hexatronics Incorporated</h4>
+              </div>
+              <p class="timeline-desc">
+                Spearheaded the design and programming of an interactive 3D product showcase in Unity. Integrated AI-assisted 3D component models to improve technical presentation clarity for corporate clients.
+              </p>
+              <ul class="timeline-points">
+                <li>Authored modular C# interaction scripts for interactive camera orbits, part dissections, and specification HUDs.</li>
+                <li>Designed corporate visual marketing collateral: technical product catalogs, video reels, and exhibition graphics using Photoshop and Canva.</li>
+                <li>Conducted rigorous cross-platform optimization, testing frame rates across various workstation specifications to guarantee smooth client deployment.</li>
+              </ul>
+              <div class="timeline-tags">
+                <span>Unity</span><span>C#</span><span>3D Pipeline</span><span>Photoshop</span><span>Video Editing</span><span>Hardware Testing</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="timeline-item">
+            <div class="timeline-meta">
+              <span class="timeline-date">2024</span>
+              <span class="timeline-duration">Full Deployment</span>
+              <span class="timeline-location">Tarlac City Hall</span>
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-header">
+                <h3 class="timeline-role">SPES IT & Administrative Support Officer</h3>
+                <h4 class="timeline-company">City Government of Tarlac — PESO Office</h4>
+              </div>
+              <p class="timeline-desc">
+                Served as front-line technical specialist for municipal office staff, managing workstation health, OS troubleshooting, network connectivity, and citizen welfare database inputs.
+              </p>
+              <ul class="timeline-points">
+                <li>Diagnosed and resolved hardware/software malfunctions across municipal desktop fleets, minimizing staff downtime.</li>
+                <li>Processed and maintained thousands of beneficiary records for national programs (4Ps) with strict data integrity standards.</li>
+                <li>Established streamlined digital filing workflows, assisting administrative officers in transitioning physical paper archives to searchable indexes.</li>
+              </ul>
+              <div class="timeline-tags">
+                <span>IT Support</span><span>Hardware Diagnostics</span><span>Data Verification</span><span>OS Troubleshooting</span><span>Government IT</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="timeline-item">
+            <div class="timeline-meta">
+              <span class="timeline-date">2023</span>
+              <span class="timeline-duration">Work Immersion</span>
+              <span class="timeline-location">Barangay Balete, Tarlac City</span>
+            </div>
+            <div class="timeline-body">
+              <div class="timeline-header">
+                <h3 class="timeline-role">Work Immersion Technical Intern</h3>
+                <h4 class="timeline-company">Barangay Balete Local Government Unit</h4>
+              </div>
+              <p class="timeline-desc">
+                Managed front-desk technical support, community inquiries, and digital record processing for barangay administrative offices.
+              </p>
+              <ul class="timeline-points">
+                <li>Maintained resident census databases through continuous verification, data cleaning, and localized digital backups.</li>
+                <li>Resolved peripheral connectivity issues (printers, local switches, scanning hardware) for non-technical civil servants.</li>
+              </ul>
+              <div class="timeline-tags">
+                <span>Records Management</span><span>Database Entry</span><span>User Support</span><span>Office Infrastructure</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Stack & Workbench -->
+    <section id="workbench" class="section section--border-top">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-badge">03 // Technical Inventory</div>
+          <h2 class="section-title">The Workbench & Tooling</h2>
+          <p class="section-subtitle">No exaggerated 99% progress bars. Just the languages, runtimes, hardware skills, and tools I use to build and fix things.</p>
+        </div>
+
+        <div class="workbench-grid">
+          <!-- Col 1: Software & Coding -->
+          <div class="tool-card">
+            <div class="tool-card__head">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              </div>
+              <h3 class="tool-title">Programming & Databases</h3>
+            </div>
+            <ul class="tool-list">
+              <li>
+                <span class="tool-name">C# (.NET 8 / Framework)</span>
+                <span class="tool-desc">Desktop GUI (WinForms/WPF), OOP patterns, asynchronous file I/O</span>
+              </li>
+              <li>
+                <span class="tool-name">SQL (SQL Server & MySQL)</span>
+                <span class="tool-desc">Relational schema design, indexes, transactional procedures, queries</span>
+              </li>
+              <li>
+                <span class="tool-name">Java</span>
+                <span class="tool-desc">Certified fundamentals, algorithms, data structures & core concepts</span>
+              </li>
+              <li>
+                <span class="tool-name">Unity Engine (C#)</span>
+                <span class="tool-desc">3D transforms, physics raycasting, UI canvases, asset optimization</span>
+              </li>
+              <li>
+                <span class="tool-name">Git & GitHub</span>
+                <span class="tool-desc">Branching, merge conflict resolution, repo hygiene, commit histories</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Col 2: IT Support & Hardware -->
+          <div class="tool-card">
+            <div class="tool-card__head">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              </div>
+              <h3 class="tool-title">Systems & Infrastructure</h3>
+            </div>
+            <ul class="tool-list">
+              <li>
+                <span class="tool-name">PC Assembly & Diagnostics</span>
+                <span class="tool-desc">Component seating, POST troubleshooting, thermal paste application, PSU testing</span>
+              </li>
+              <li>
+                <span class="tool-name">Linux Administration (LPI)</span>
+                <span class="tool-desc">CLI utilities, permissions (`chmod`/`chown`), services (`systemd`), SSH</span>
+              </li>
+              <li>
+                <span class="tool-name">Windows Desktop & Server</span>
+                <span class="tool-desc">OS deployments, group policy basics, registry repairs, driver debugging</span>
+              </li>
+              <li>
+                <span class="tool-name">LAN Cabling & Peripherals</span>
+                <span class="tool-desc">Crimping RJ45 (T568A/B), switch patching, router configs, network sharing</span>
+              </li>
+              <li>
+                <span class="tool-name">Preventive Maintenance</span>
+                <span class="tool-desc">Dust extraction, thermal cycle monitoring, disk health (S.M.A.R.T.), backup routines</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Col 3: Design & Production -->
+          <div class="tool-card">
+            <div class="tool-card__head">
+              <div class="tool-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+              </div>
+              <h3 class="tool-title">Media & Creative Assets</h3>
+            </div>
+            <ul class="tool-list">
+              <li>
+                <span class="tool-name">Adobe Photoshop</span>
+                <span class="tool-desc">Marketing flyers, product brochures, raster touch-ups, UI assets</span>
+              </li>
+              <li>
+                <span class="tool-name">Video Production</span>
+                <span class="tool-desc">Corporate showcase reels, product video cuts, pacing & audio sync</span>
+              </li>
+              <li>
+                <span class="tool-name">3D Asset Integration</span>
+                <span class="tool-desc">Importing FBX/OBJ meshes, scale calibration, collision meshes in Unity</span>
+              </li>
+              <li>
+                <span class="tool-name">Canva & Technical Layouts</span>
+                <span class="tool-desc">Fast collateral turnaround, infographics, documentation formatting</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: Credentials & Certifications -->
+    <section id="credentials" class="section section--border-top">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-badge">04 // Verification</div>
+          <h2 class="section-title">Education & Credentials</h2>
+          <p class="section-subtitle">Accredited coursework, industrial internship certificates, and vendor awards.</p>
+        </div>
+
+        <div class="cred-grid">
+          <!-- Degree Card -->
+          <div class="cred-card cred-card--major">
+            <div class="cred-badge">Undergraduate Degree</div>
+            <h3 class="cred-title">Bachelor of Science in Information Technology</h3>
+            <div class="cred-institution">STI College Tarlac</div>
+            <div class="cred-year">Class of 2022 – 2026 • Graduating Senior</div>
+            <p class="cred-notes">
+              Focus on software development, systems analysis & design, database administration, networking principles, and comprehensive IT capstone implementation.
+            </p>
+          </div>
+
+          <!-- Cert 1 -->
+          <div class="cred-card">
+            <div class="cred-card__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5l9-9l-9-9l2 5l-7 4z"/></svg>
+            </div>
+            <h4 class="cred-item-title">Systems Administration Certificate</h4>
+            <div class="cred-item-issuer">Linux Professional Institute (LPI) Academic Partner / STI</div>
+            <span class="cred-item-year">Issued 2023</span>
+            <p class="cred-item-desc">Demonstrated competency in command-line administration, package management, process control, and system architecture.</p>
+          </div>
+
+          <!-- Cert 2 -->
+          <div class="cred-card">
+            <div class="cred-card__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16.5 9.4 7.55 4.24a1.78 1.78 0 0 0-2.5 1.55v12.42a1.78 1.78 0 0 0 2.5 1.55L16.5 14.6a1.78 1.78 0 0 0 0-3.2z"/></svg>
+            </div>
+            <h4 class="cred-item-title">Java Fundamentals Certificate</h4>
+            <div class="cred-item-issuer">Oracle Academy</div>
+            <span class="cred-item-year">Issued 2023</span>
+            <p class="cred-item-desc">Object-oriented programming principles, class inheritance, exception handling, data structures, and foundational algorithms.</p>
+          </div>
+
+          <!-- Cert 3 -->
+          <div class="cred-card">
+            <div class="cred-card__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <h4 class="cred-item-title">Certificate of Internship (486 Hours)</h4>
+            <div class="cred-item-issuer">Hexatronics Incorporated</div>
+            <span class="cred-item-year">Issued May 2026</span>
+            <p class="cred-item-desc">Formal completion of enterprise internship in systems development, Unity 3D application scripting, and multimedia asset engineering.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: The Anti-AI Manifesto & Philosophy -->
+    <section id="manifesto" class="section section--border-top">
+      <div class="container">
+        <div class="manifesto-card">
+          <div class="manifesto-header">
+            <span class="manifesto-pill">Craft Manifesto</span>
+            <span class="manifesto-coord">REF: NO-AI-SLOP // HUMAN-BUILT</span>
+          </div>
+          <blockquote class="manifesto-quote">
+            "I write code that compiles on target machines, and I build computers that actually boot. I believe software should be reliable before it is flashy, and architecture should solve human problems rather than chase resume buzzwords."
+          </blockquote>
+          <div class="manifesto-grid">
+            <div class="manifesto-col">
+              <h4>1. Physicality & Ground Truth</h4>
+              <p>Software doesn't float in an ethereal cloud. It executes on silicon chips, draws power from transformers, and talks through twisted copper pair cables. Understanding the hardware layer makes me a sharper programmer.</p>
+            </div>
+            <div class="manifesto-col">
+              <h4>2. Offline-First Resilience</h4>
+              <p>When an IT depot loses connection in the middle of a shift, businesses cannot stop. I design software that treats network drops as normal operational conditions rather than fatal exceptions.</p>
+            </div>
+            <div class="manifesto-col">
+              <h4>3. Real Craft Over Generic Templates</h4>
+              <p>This site isn't filled with neon glowing abstract purple blobs, fake 99% progress bars, or stock AI copy. It is an honest, verifiable snapshot of who I am, what I've constructed, and what I can deliver for your team.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 6: Contact & Terminal Command Center -->
+    <section id="contact" class="section section--border-top">
+      <div class="container contact-container">
+        <div class="contact-box">
+          <div class="contact-box__head">
+            <span class="contact-badge">Initiate Direct Contact</span>
+            <h2 class="contact-title">Let's build something durable together.</h2>
+            <p class="contact-subtitle">
+              Whether you need a dedicated Junior Software Developer (C#/.NET), an IT Infrastructure Specialist, a Unity developer, or a reliable systems engineer, my inbox is open.
+            </p>
+          </div>
+
+          <div class="contact-channels">
+            <div class="channel-card">
+              <span class="channel-label">Email Address</span>
+              <a href="mailto:landinginjohnnigel@gmail.com" class="channel-value">landinginjohnnigel@gmail.com</a>
+              <button class="channel-copy-btn" data-email="landinginjohnnigel@gmail.com" title="Copy to clipboard">
+                Copy
+              </button>
+            </div>
+
+            <div class="channel-card">
+              <span class="channel-label">Direct Phone / Viber</span>
+              <a href="tel:+639183711271" class="channel-value">+63 918 371 1271</a>
+              <span class="channel-badge">PH Mobile</span>
+            </div>
+
+            <div class="channel-card">
+              <span class="channel-label">Primary Location</span>
+              <span class="channel-value">Barangay Atioc, Tarlac City, Philippines</span>
+              <span class="channel-badge">UTC+8</span>
+            </div>
+          </div>
+
+          <div class="contact-actions">
+            <a href="mailto:landinginjohnnigel@gmail.com?subject=Regarding%20IT%20%2F%20Software%20Opportunity%20-%20John%20Nigel%20Landingin" class="btn btn--primary btn--lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              Send an Email Directly
+            </a>
+            <a href="assets/John_Nigel_Landingin_Resume.pdf" download="John_Nigel_Landingin_Resume.pdf" class="btn btn--outline btn--lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Formal CV (PDF)
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Colophon / Footer -->
+  <footer class="site-footer">
+    <div class="container footer__inner">
+      <div class="footer__colophon">
+        <div class="colophon-title">COLOPHON</div>
+        <p>
+          Handcrafted by <strong>John Nigel Landingin</strong>. Built without bulky JavaScript frameworks, without AI-slop neon gradients, and with 100% semantic HTML, modern CSS, and vanilla JavaScript.
+        </p>
+        <p class="colophon-fonts">
+          Typography: <em>Space Grotesk</em> (technical body), <em>JetBrains Mono</em> (telemetry & data), and <em>Instrument Serif</em> (human accents).
+        </p>
+      </div>
+
+      <div class="footer__meta">
+        <div class="footer__status-box">
+          <span class="status-pulse"></span>
+          <span>Tarlac City Depot: Operational</span>
+        </div>
+        <div class="footer__copyright">
+          © 2026 John Nigel Landingin. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Command Palette Modal (Ctrl+K / ⌘K) -->
+  <dialog class="cmd-dialog" id="cmd-dialog" aria-label="Command Menu">
+    <div class="cmd-box">
+      <div class="cmd-input-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="cmd-input" placeholder="Type a command or jump to section..." autocomplete="off">
+        <kbd class="cmd-esc-hint">ESC</kbd>
+      </div>
+      <div class="cmd-results" id="cmd-results">
+        <!-- Injected via script -->
+      </div>
+      <div class="cmd-footer">
+        <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+        <span><kbd>ENTER</kbd> to select</span>
+        <span><kbd>ESC</kbd> to close</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Technical Spec Modal (for Deep-Dive Architecture) -->
+  <dialog class="spec-dialog" id="spec-dialog" aria-label="Project Specification">
+    <div class="spec-modal-box">
+      <div class="spec-modal-head">
+        <div>
+          <span class="spec-modal-badge" id="modal-tag">ARCHITECTURE DEEP DIVE</span>
+          <h3 class="spec-modal-title" id="modal-title">Project Name</h3>
+        </div>
+        <button class="spec-modal-close" id="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="spec-modal-body" id="modal-body">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="spec-modal-foot">
+        <button class="btn btn--outline btn--sm" id="modal-close-btn">Close Inspector</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Toast Notification element -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
