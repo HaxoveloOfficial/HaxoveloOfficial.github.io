@@ -1,14 +1,27 @@
-import React from 'react';
-import { PORTFOLIO_CONFIG } from '../config/portfolio.config';
-import { Folder, User, Box, Award, Layers, Terminal, ExternalLink, Code } from 'lucide-react';
+import React, { useState } from 'react';
+import { PortfolioConfig } from '../types/portfolio';
+import { Folder, User, Box, Award, Layers, Terminal, ExternalLink, Code, Network, Landmark, Car } from 'lucide-react';
 
 interface BentoGridProps {
+  config: PortfolioConfig;
   onOpenProject: (projectId: string) => void;
 }
 
-export const BentoGrid: React.FC<BentoGridProps> = ({ onOpenProject }) => {
-  const { projects, services, credentials } = PORTFOLIO_CONFIG;
+export const BentoGrid: React.FC<BentoGridProps> = ({ config, onOpenProject }) => {
+  const { projects, services, credentials } = config;
+  const [filter, setFilter] = useState<string>('all');
+
   const capstone = projects.find(p => p.id === 'logistics');
+
+  // Filter projects dynamically
+  const filteredProjects = projects.filter(p => {
+    if (filter === 'all') return true;
+    if (filter === 'desktop') return p.id === 'logistics' || p.id === 'microfinance';
+    if (filter === '3d') return p.id === 'hexatronics' || p.id === 'nfs-garage';
+    if (filter === 'enterprise') return p.id === 'archimate' || p.id === 'municipal';
+    if (filter === 'network') return p.id === 'datacom';
+    return true;
+  });
 
   return (
     <section className="bento-grid" aria-label="Portfolio Bento Matrix">
@@ -17,27 +30,29 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ onOpenProject }) => {
       {capstone && (
         <article className="bento-card bento-card--featured" id="bento-projects">
           <div className="bento-card__head">
-            <div className="bento-tag-wrap">
-              <span className="bento-card-icon">
-                <Folder size={16} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--accent-orange)' }}>
+                <Folder size={20} />
               </span>
-              <span className="bento-card-title">PROJECTS</span>
+              <span className="bento-card-title">PRIMARY ARCHITECTURE</span>
             </div>
-            <span className="bento-badge bento-badge--accent">{capstone.tag}</span>
+            <span className="bento-badge" style={{ background: 'var(--accent-orange-dim)', borderColor: 'var(--accent-orange)', color: 'var(--accent-orange)' }}>
+              {capstone.tag}
+            </span>
           </div>
 
-          <p className="bento-card-sub">
-            Mission-critical systems built to eliminate operational downtime.
+          <h3 className="featured-title" style={{ fontSize: '1.75rem', marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+            <span className="gradient-text">{capstone.title}</span>
+          </h3>
+          <p className="featured-desc" style={{ fontSize: '1.05rem', color: 'var(--text-muted)' }}>
+            {capstone.description}
           </p>
 
-          <div className="featured-project-inner">
+          <div className="featured-project-inner" style={{ marginTop: '1.25rem' }}>
             <div>
-              <h3 className="featured-title">{capstone.title}</h3>
-              <p className="featured-desc">{capstone.description}</p>
-              
               <div className="featured-tags">
                 {capstone.techStack.map((tech, i) => (
-                  <span key={i}>{tech}</span>
+                  <span key={i} style={{ border: '1px solid var(--accent-blue)', color: 'var(--accent-blue)' }}>{tech}</span>
                 ))}
               </div>
 
@@ -46,35 +61,35 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ onOpenProject }) => {
                   href={capstone.githubUrl} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="bento-btn bento-btn--sm bento-btn--accent"
+                  className="bento-btn bento-btn--accent"
                 >
-                  <ExternalLink size={14} />
-                  <span>GitHub Repository</span>
+                  <ExternalLink size={16} />
+                  <span>Public GitHub Repo</span>
                 </a>
                 <button 
                   onClick={() => onOpenProject(capstone.id)} 
-                  className="bento-btn bento-btn--sm bento-btn--outline"
+                  className="bento-btn bento-btn--outline"
                 >
-                  <Code size={14} />
+                  <Code size={16} />
                   <span>Architecture Deep Dive</span>
                 </button>
               </div>
             </div>
 
             <div>
-              <div className="terminal-preview-window">
-                <div className="window-bar">
+              <div className="terminal-preview-window" style={{ border: '2px solid var(--border-color)' }}>
+                <div className="window-bar" style={{ background: 'var(--bg-card-sub)' }}>
                   <span className="win-dot red"></span>
                   <span className="win-dot yellow"></span>
                   <span className="win-dot green"></span>
-                  <span className="win-title">delivery_dispatcher.cs</span>
+                  <span className="win-title" style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>depot_dispatch.cs</span>
                 </div>
-                <div className="code-preview">
-                  <div className="code-line"><span className="c-keyword">public async Task</span>&lt;Manifest&gt; <span className="c-method">DispatchFreight</span>()</div>
+                <div className="code-preview" style={{ fontSize: '0.85rem' }}>
+                  <div className="code-line"><span style={{ color: 'var(--accent-orange)' }}>public async Task</span>&lt;Manifest&gt; <span style={{ color: 'var(--accent-blue)' }}>DispatchFreight</span>()</div>
                   <div className="code-line">&nbsp;&nbsp;VerifyLocalDatabaseIntegrity();</div>
-                  <div className="code-line">&nbsp;&nbsp;<span className="c-comment">// Zero network dependency mode</span></div>
-                  <div className="code-line">&nbsp;&nbsp;<span className="c-keyword">var</span> manifest = CalculateFreightTolls();</div>
-                  <div className="code-line">&nbsp;&nbsp;<span className="c-keyword">return</span> manifest.CommitAtomic();</div>
+                  <div className="code-line">&nbsp;&nbsp;<span style={{ color: 'var(--accent-yellow)', fontStyle: 'italic' }}>// Zero internet outage dependency</span></div>
+                  <div className="code-line">&nbsp;&nbsp;<span style={{ color: 'var(--accent-orange)' }}>var</span> manifest = CalculateFreightTolls();</div>
+                  <div className="code-line">&nbsp;&nbsp;<span style={{ color: 'var(--accent-orange)' }}>return</span> manifest.CommitAtomic();</div>
                 </div>
               </div>
             </div>
@@ -82,145 +97,181 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ onOpenProject }) => {
         </article>
       )}
 
-      {/* 2. About Card */}
+      {/* 2. Project Filter Tabs Bar (Full Width) */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Engineered Works & Repositories</h3>
+            <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>
+              Explore desktop software, 3D simulations, enterprise models, and public records pipelines.
+            </p>
+          </div>
+          <div className="filter-tabs-row" style={{ marginBottom: 0 }}>
+            <button onClick={() => setFilter('all')} className={`filter-pill ${filter === 'all' ? 'active' : ''}`}>All ({projects.length})</button>
+            <button onClick={() => setFilter('desktop')} className={`filter-pill ${filter === 'desktop' ? 'active' : ''}`}>Desktop & Banking</button>
+            <button onClick={() => setFilter('3d')} className={`filter-pill ${filter === '3d' ? 'active' : ''}`}>3D & Simulation</button>
+            <button onClick={() => setFilter('enterprise')} className={`filter-pill ${filter === 'enterprise' ? 'active' : ''}`}>Enterprise & Gov</button>
+            <button onClick={() => setFilter('network')} className={`filter-pill ${filter === 'network' ? 'active' : ''}`}>Networking</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Dynamic Projects Grid */}
+      {filteredProjects.filter(p => p.id !== 'logistics').map((proj) => (
+        <article key={proj.id} className="bento-card">
+          <div className="bento-card__head">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <span style={{ color: 'var(--accent-blue)' }}>
+                {proj.id === 'hexatronics' && <Box size={20} />}
+                {proj.id === 'archimate' && <Layers size={20} />}
+                {proj.id === 'microfinance' && <Landmark size={20} />}
+                {proj.id === 'datacom' && <Network size={20} />}
+                {proj.id === 'municipal' && <Terminal size={20} />}
+                {proj.id === 'nfs-garage' && <Car size={20} />}
+              </span>
+              <span className="bento-card-title">{proj.tag}</span>
+            </div>
+            <span className="bento-badge">{proj.demoBadge}</span>
+          </div>
+
+          <h4 style={{ fontSize: '1.25rem', fontWeight: 700, margin: '0.4rem 0' }}>{proj.title}</h4>
+          <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: 1.6, flex: 1, marginBottom: '1.25rem' }}>
+            {proj.description}
+          </p>
+
+          <div className="featured-tags" style={{ marginBottom: '1.25rem' }}>
+            {proj.techStack.map((tech, i) => (
+              <span key={i}>{tech}</span>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <a 
+              href={proj.githubUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="bento-btn bento-btn--sm bento-btn--outline"
+            >
+              <ExternalLink size={14} />
+              <span>GitHub</span>
+            </a>
+            <button 
+              onClick={() => onOpenProject(proj.id)} 
+              className="bento-btn bento-btn--sm bento-btn--ghost"
+            >
+              <Code size={14} />
+              <span>Technical Notes</span>
+            </button>
+          </div>
+        </article>
+      ))}
+
+      {/* 3. About & Physical Grounding Card */}
       <article className="bento-card" id="bento-about">
         <div className="bento-card__head">
-          <div className="bento-tag-wrap">
-            <span className="bento-card-icon">
-              <User size={16} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ color: 'var(--accent-yellow)' }}>
+              <User size={20} />
             </span>
-            <span className="bento-card-title">ABOUT</span>
+            <span className="bento-card-title">ABOUT & GROUND TRUTH</span>
           </div>
         </div>
-        <p className="bento-card-sub">Engineering philosophy & physical ground truth.</p>
+        <p className="bento-card-sub">Engineering philosophy & physical hardware context.</p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <p style={{ fontSize: '0.9375rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: 1.7 }}>
             I am an Information Technology graduate from <strong>STI College Tarlac</strong>. I focus on software that survives the real world: offline desktop architectures, relational databases, real-time 3D models, and physical PC hardware.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', paddingTop: '1.25rem', borderTop: '2px solid var(--border-color)' }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 700 }}>486</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>OJT Hours</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-orange)' }}>486</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>OJT Hours</div>
             </div>
             <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 700 }}>STI</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>BS IT 2026</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-yellow)' }}>STI</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>BS IT 2026</div>
             </div>
             <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 700 }}>100%</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Hardware Fluency</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-blue)' }}>100%</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Hardware Fluency</div>
             </div>
           </div>
         </div>
       </article>
 
-      {/* 3. 3D & Interactive Media (Hexatronics) */}
-      <article className="bento-card">
-        <div className="bento-card__head">
-          <div className="bento-tag-wrap">
-            <span className="bento-card-icon">
-              <Box size={16} />
-            </span>
-            <span className="bento-card-title">3D & INTERACTIVE BUILDS</span>
-          </div>
-          <span className="bento-badge">HEXATRONICS INC.</span>
-        </div>
-        <p className="bento-card-sub">Real-time simulation, camera physics & optimization.</p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <h4 style={{ fontSize: '1.15rem', fontWeight: 700 }}>Interactive 3D Product Showcase</h4>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.55 }}>
-            Authored in Unity 3D with C# scripts governing virtual camera orbits, part dissections, and PBR shaders for enterprise hardware demonstrations.
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', margin: '0.5rem 0 1rem' }}>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', padding: '0.2rem 0.5rem', background: 'var(--bg-card-sub)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>Unity 3D Engine</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', padding: '0.2rem 0.5rem', background: 'var(--bg-card-sub)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>C# Physics</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', padding: '0.2rem 0.5rem', background: 'var(--bg-card-sub)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>PBR Shaders</span>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', padding: '0.2rem 0.5rem', background: 'var(--bg-card-sub)', border: '1px solid var(--border-color)', borderRadius: '4px' }}>60 FPS Optimized</span>
-          </div>
-          <button onClick={() => onOpenProject('hexatronics')} className="bento-btn bento-btn--sm bento-btn--ghost">
-            <span>View 3D Pipeline Details</span>
-          </button>
-        </div>
-      </article>
-
-      {/* 4. Credentials & Degrees */}
+      {/* 4. Credentials & Degrees Card */}
       <article className="bento-card" id="bento-credentials">
         <div className="bento-card__head">
-          <div className="bento-tag-wrap">
-            <span className="bento-card-icon">
-              <Award size={16} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ color: 'var(--accent-yellow)' }}>
+              <Award size={20} />
             </span>
             <span className="bento-card-title">CREDENTIALS</span>
           </div>
-          <span className="bento-badge">ACCREDITED</span>
+          <span className="bento-badge" style={{ color: 'var(--accent-yellow)' }}>VERIFIED</span>
         </div>
-        <p className="bento-card-sub">Formal education, vendor certificates, and enterprise hours.</p>
+        <p className="bento-card-sub">Formal degree, vendor certificates, and enterprise hours.</p>
 
         <div className="credentials-bento-list">
           {credentials.map((cred, i) => (
-            <div key={i} className="cred-row-item">
+            <div key={i} className="cred-row-item" style={{ border: '2px solid var(--border-color)' }}>
               <div className="cred-row-info">
-                <span className="cred-row-title">{cred.title}</span>
-                <span className="cred-row-sub">{cred.issuer} • {cred.year}</span>
+                <span className="cred-row-title" style={{ fontSize: '0.95rem' }}>{cred.title}</span>
+                <span className="cred-row-sub" style={{ fontSize: '0.8rem' }}>{cred.issuer} • {cred.year}</span>
               </div>
-              <span className="cred-pill">{cred.badge}</span>
+              <span className="cred-pill" style={{ background: 'var(--accent-yellow-dim)', color: 'var(--accent-yellow)' }}>{cred.badge}</span>
             </div>
           ))}
         </div>
       </article>
 
-      {/* 5. Services (Numbered List) */}
+      {/* 5. Services & Capabilities Card */}
       <article className="bento-card" id="bento-services">
         <div className="bento-card__head">
-          <div className="bento-tag-wrap">
-            <span className="bento-card-icon">
-              <Layers size={16} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ color: 'var(--accent-blue)' }}>
+              <Layers size={20} />
             </span>
-            <span className="bento-card-title">SERVICES</span>
+            <span className="bento-card-title">CAPABILITIES & SERVICES</span>
           </div>
         </div>
-        <p className="bento-card-sub">What I construct and deploy for teams.</p>
+        <p className="bento-card-sub">What I construct, engineer, and deploy for enterprise teams.</p>
 
         <ol className="services-bento-list">
           {services.map((serv, i) => (
-            <li key={i} className="service-row">
+            <li key={i} className="service-row" style={{ borderBottom: '2px solid var(--border-color)' }}>
               <div className="service-row-left">
-                <span className="service-name">{serv.name}</span>
-                <span className="service-desc">{serv.desc}</span>
+                <span className="service-name" style={{ fontSize: '1.05rem' }}>{serv.name}</span>
+                <span className="service-desc" style={{ fontSize: '0.85rem' }}>{serv.desc}</span>
               </div>
-              <span className="service-num">{serv.num}</span>
+              <span className="service-num" style={{ color: 'var(--accent-blue)' }}>{serv.num}</span>
             </li>
           ))}
         </ol>
       </article>
 
-      {/* 6. Field Bench & LGU Operations */}
+      {/* 6. Hardware Bench Diagnostics */}
       <article className="bento-card">
         <div className="bento-card__head">
-          <div className="bento-tag-wrap">
-            <span className="bento-card-icon">
-              <Terminal size={16} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <span style={{ color: 'var(--accent-orange)' }}>
+              <Terminal size={20} />
             </span>
-            <span className="bento-card-title">FIELD OPERATIONS</span>
+            <span className="bento-card-title">PHYSICAL HARDWARE BENCH</span>
           </div>
-          <span className="bento-badge">PUBLIC SECTOR</span>
+          <span className="bento-badge" style={{ color: 'var(--accent-orange)' }}>BENCH LAB</span>
         </div>
-        <p className="bento-card-sub">Municipal records verification & workstation deployment.</p>
+        <p className="bento-card-sub">Motherboard diagnostics, POST troubleshooting, thermal paste & LAN cabling.</p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ padding: '0.85rem 1rem', background: 'var(--bg-card-sub)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent)', marginBottom: '0.35rem' }}>
-              City of Tarlac PESO & Brgy. Balete
+          <div style={{ padding: '1rem', background: 'var(--bg-card-sub)', border: '2px solid var(--border-color)', borderRadius: '14px' }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-orange)', marginBottom: '0.35rem' }}>
+              Component Seating & Multimeter Testing
             </div>
-            <p style={{ fontSize: '0.8125rem', color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              Managed workstation health, OS troubleshooting, and high-volume data verification for citizen welfare programs (4Ps) with <strong>zero data loss</strong>.
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              Hands-on diagnostic methodology: CPU pin inspection, memory channel POST troubleshooting, thermal cycle monitoring, and RJ45 (T568B) structured cabling termination.
             </p>
           </div>
-          <button onClick={() => onOpenProject('municipal')} className="bento-btn bento-btn--sm bento-btn--ghost">
-            <span>View Municipal Pipeline Notes</span>
-          </button>
         </div>
       </article>
 

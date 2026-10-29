@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PORTFOLIO_CONFIG } from './config/portfolio.config';
+import { PortfolioConfig } from './types/portfolio';
 import { Sidebar } from './components/Sidebar';
 import { DailyDrivers } from './components/DailyDrivers';
 import { BentoGrid } from './components/BentoGrid';
@@ -7,24 +8,51 @@ import { SystemDiagnostics } from './components/SystemDiagnostics';
 import { InteractiveTerminal } from './components/InteractiveTerminal';
 import { ProjectInspectorModal } from './components/ProjectInspectorModal';
 import { VisitorBadge } from './components/VisitorBadge';
+import { LoginModal } from './components/LoginModal';
+import { AdminDeck } from './components/AdminDeck';
 import { Default as SpotlightDemo } from './components/ui/demo';
-import { ArrowUpRight, Download, Mail, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock } from 'lucide-react';
 
 export const App: React.FC = () => {
-  const { hero, profile } = PORTFOLIO_CONFIG;
+  // Live editable config state
+  const [config, setConfig] = useState<PortfolioConfig>(PORTFOLIO_CONFIG);
+  
+  // Accessibility & Theme State
   const [theme, setTheme] = useState<'dark' | 'light' | 'terminal'>(() => {
     return (localStorage.getItem('jnl_theme') as 'dark' | 'light' | 'terminal') || 'dark';
   });
+  const [isLargeText, setIsLargeText] = useState<boolean>(() => {
+    return localStorage.getItem('jnl_large_text') === 'true';
+  });
+
+  // Security & Authentication State
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    return sessionStorage.getItem('jnl_admin_auth') === 'true';
+  });
+  const [isLoginOpen, setIsLoginOpen] = useState<boolean>(false);
+  const [isAdminDeckOpen, setIsAdminDeckOpen] = useState<boolean>(false);
+
+  // Modals & Feedback
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
   const [isTerminalOpen, setIsTerminalOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // Apply Theme & Font Scale to document root
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('jnl_theme', theme);
   }, [theme]);
 
-  // Global Keyboard Shortcuts (tilde '~' or '`' to open terminal)
+  useEffect(() => {
+    if (isLargeText) {
+      document.documentElement.setAttribute('data-text-size', 'large');
+    } else {
+      document.documentElement.removeAttribute('data-text-size');
+    }
+    localStorage.setItem('jnl_large_text', String(isLargeText));
+  }, [isLargeText]);
+
+  // Global Keyboard Shortcut (~ or ` for terminal)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '`' || e.key === '~') {
@@ -43,44 +71,103 @@ export const App: React.FC = () => {
     showToast(`Switched to ${themes[nextIdx].toUpperCase()} mode`);
   };
 
+  const handleToggleTextSize = () => {
+    setIsLargeText(prev => {
+      const next = !prev;
+      showToast(next ? "Large Text Mode Active (+20%)" : "Standard Text Mode Active");
+      return next;
+    });
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdmin(true);
+    sessionStorage.setItem('jnl_admin_auth', 'true');
+    setIsAdminDeckOpen(true);
+  };
+
+  const handleLogoutAdmin = () => {
+    setIsAdmin(false);
+    sessionStorage.removeItem('jnl_admin_auth');
+    setIsAdminDeckOpen(false);
+    showToast("Session Locked. Returned to Guest Mode.");
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 2800);
+    }, 3000);
   };
 
   return (
     <div className="app-layout">
-      {/* 1. Profile & Navigation Sidebar */}
+      {/* 1. Accessible Sidebar with A11y & Admin Controls */}
       <Sidebar 
+        config={config}
         currentTheme={theme} 
+        isLargeText={isLargeText}
+        isAdmin={isAdmin}
         onToggleTheme={handleToggleTheme}
+        onToggleTextSize={handleToggleTextSize}
         onOpenTerminal={() => setIsTerminalOpen(true)}
+        onOpenLogin={() => setIsLoginOpen(true)}
+        onLogoutAdmin={handleLogoutAdmin}
+        onOpenAdminDeck={() => setIsAdminDeckOpen(true)}
         onShowToast={showToast}
       />
 
       {/* 2. Main Bento Canvas */}
       <main className="app-main" id="home">
         
+        {/* Security / Session Mode Banner */}
+        <div className="security-status-banner">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            {isAdmin ? (
+              <span className="status-badge-admin">
+                <Unlock size={16} />
+                <span>ADMIN ACTIVE: Live Customizer & Scalability Tools Unlocked</span>
+              </span>
+            ) : (
+              <span className="status-badge-public">
+                <ShieldCheck size={16} />
+                <span>GUEST SESSION ACTIVE: Sanitized Public View • Sensitive Data Redacted</span>
+              </span>
+            )}
+          </div>
+          <div>
+            {isAdmin ? (
+              <button onClick={() => setIsAdminDeckOpen(true)} className="bento-btn bento-btn--sm bento-btn--accent" style={{ minHeight: '36px' }}>
+                Open Command Deck
+              </button>
+            ) : (
+              <button onClick={() => setIsLoginOpen(true)} className="bento-btn bento-btn--sm bento-btn--outline" style={{ minHeight: '36px' }}>
+                <Lock size={13} />
+                <span>Operator Login</span>
+              </button>
+            )}
+          </div>
+        </div>
+
         {/* Top Hero Banner */}
         <header className="main-hero">
           <div className="main-hero__content">
             <div className="hero-eyebrow">
               <span className="eyebrow-dot"></span>
-              <span>{hero.badge}</span>
+              <span>{config.hero.badge}</span>
             </div>
-            <h2 className="hero-statement">{hero.title}</h2>
-            <p className="hero-substatement">{hero.subtitle}</p>
+            <h2 className="hero-statement">
+              <span className="gradient-text">{config.hero.title}</span>
+            </h2>
+            <p className="hero-substatement">{config.hero.subtitle}</p>
           </div>
 
           <div className="main-hero__actions">
-            <a href={hero.ctaPrimary.href} className="bento-btn bento-btn--accent">
-              <span>{hero.ctaPrimary.text}</span>
-              <ArrowUpRight size={16} />
+            <a href={config.hero.ctaPrimary.href} className="bento-btn bento-btn--accent">
+              <span>{config.hero.ctaPrimary.text}</span>
+              <ArrowUpRight size={18} />
             </a>
-            <a href={hero.ctaSecondary.href} download={hero.ctaSecondary.isDownload ? "John_Nigel_Landingin_Resume.pdf" : undefined} className="bento-btn bento-btn--outline">
-              <Download size={15} />
+            <a href={config.hero.ctaSecondary.href} download="John_Nigel_Landingin_Resume.pdf" className="bento-btn bento-btn--outline">
+              <Download size={17} />
               <span>Resume (PDF)</span>
             </a>
           </div>
@@ -89,22 +176,22 @@ export const App: React.FC = () => {
         {/* Daily Drivers Ribbon */}
         <DailyDrivers />
 
-        {/* The Bento Matrix */}
-        <BentoGrid onOpenProject={(id) => setActiveProjectId(id)} />
+        {/* The Bento Matrix (All 7 Projects with Filters) */}
+        <BentoGrid config={config} onOpenProject={(id) => setActiveProjectId(id)} />
 
         {/* Interactive Spotlight & Glow Showcase (shadcn / Tailwind component) */}
-        <section className="diagnostics-box" style={{ padding: '2rem 1.5rem' }}>
-          <div className="diagnostics-head" style={{ marginBottom: '1rem' }}>
+        <section className="diagnostics-box" style={{ padding: '2.25rem 1.75rem', border: '2px solid var(--border-color)' }}>
+          <div className="diagnostics-head" style={{ marginBottom: '0.75rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-              <Sparkles size={18} color="var(--accent)" />
-              <span className="diagnostics-title">INTERACTIVE SPOTLIGHT & GLOW ENGINE</span>
+              <Sparkles size={20} color="var(--accent-orange)" />
+              <span className="diagnostics-title" style={{ fontSize: '1rem' }}>DYNAMIC CHROMATIC GLOW & SPOTLIGHT CARDS</span>
             </div>
             <span className="diagnostics-badge">
-              <span>TAILWIND + SHADCN PREREQUISITE</span>
+              <span>ORANGE • YELLOW • BLUE GRADIENTS</span>
             </span>
           </div>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
-            Mouse over the cards to track dynamic cursor coordinates, chromatic hue rotation, and multi-layer radial specular lighting.
+          <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+            Interactive specular lighting reflecting cursor coordinates without high-latency GPU strain.
           </p>
           <SpotlightDemo />
         </section>
@@ -113,23 +200,23 @@ export const App: React.FC = () => {
         <SystemDiagnostics />
 
         {/* Contact Banner */}
-        <section className="contact-banner" id="contact">
+        <section className="contact-banner" id="contact" style={{ border: '2px solid var(--accent-orange)' }}>
           <div className="contact-banner__inner">
             <div className="contact-banner__content">
-              <span className="contact-pill">DIRECT CHANNELS</span>
+              <span className="contact-pill" style={{ color: 'var(--accent-orange)' }}>DIRECT CONTACT CHANNELS</span>
               <h3 className="contact-banner-title">Let's build something durable together.</h3>
               <p className="contact-banner-sub">
-                Available for Junior Developer (C#/.NET), IT Systems Administration, and Unity 3D roles. Ready for on-site (Tarlac / Central Luzon) or remote work.
+                Available for Junior Developer (C#/.NET), IT Systems Administration, Unity 3D, and Enterprise Systems Modeling.
               </p>
             </div>
             <div className="contact-banner__actions">
-              <a href={`mailto:${profile.email}`} className="bento-btn bento-btn--accent bento-btn--lg">
+              <a href={`mailto:${config.profile.email}`} className="bento-btn bento-btn--accent bento-btn--lg">
                 <Mail size={18} />
-                <span>Email: {profile.email}</span>
+                <span>{config.profile.email}</span>
               </a>
               <button onClick={() => {
-                navigator.clipboard.writeText(profile.email);
-                showToast(`Copied: ${profile.email}`);
+                navigator.clipboard.writeText(config.profile.email);
+                showToast(`Copied to clipboard: ${config.profile.email}`);
               }} className="bento-btn bento-btn--outline bento-btn--lg">
                 <span>Copy Email</span>
               </button>
@@ -137,10 +224,10 @@ export const App: React.FC = () => {
           </div>
         </section>
 
-        {/* Footer */}
-        <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8125rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
-          <div>© 2026 {profile.fullName}. Built with React 19, TypeScript, Tailwind CSS & Strict CSP.</div>
-          <a href="#home" style={{ color: 'var(--text-muted)' }}>Back to top ↑</a>
+        {/* Accessible Footer */}
+        <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', paddingTop: '2.5rem', borderTop: '2px solid var(--border-color)', fontSize: '0.9rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+          <div>© 2026 {config.profile.fullName}. Built with React 19, TypeScript, Eye-Care Gradients & Strict CSP.</div>
+          <a href="#home" style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 700 }}>Back to top ↑</a>
         </footer>
 
       </main>
@@ -148,7 +235,25 @@ export const App: React.FC = () => {
       {/* Floating Visitor Badge */}
       <VisitorBadge />
 
-      {/* Interactive Terminal Modal */}
+      {/* Operator Authentication Login Modal */}
+      <LoginModal 
+        isOpen={isLoginOpen} 
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        onShowToast={showToast}
+      />
+
+      {/* Operator Admin Command Deck */}
+      <AdminDeck 
+        isOpen={isAdminDeckOpen}
+        onClose={() => setIsAdminDeckOpen(false)}
+        config={config}
+        onUpdateConfig={(newConfig) => setConfig(newConfig)}
+        onLogout={handleLogoutAdmin}
+        onShowToast={showToast}
+      />
+
+      {/* Interactive CLI Terminal Modal */}
       <InteractiveTerminal 
         isOpen={isTerminalOpen} 
         onClose={() => setIsTerminalOpen(false)} 
