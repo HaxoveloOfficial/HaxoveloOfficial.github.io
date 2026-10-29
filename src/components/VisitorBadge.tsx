@@ -4,14 +4,22 @@ export const VisitorBadge: React.FC = () => {
   const [visits, setVisits] = useState<number>(1);
 
   useEffect(() => {
-    // Real, verifiable browser visitor tracking (Strictly no fake seed numbers)
+    // 1. Purge any legacy fake seeds from prior versions
+    try {
+      localStorage.removeItem('jnl_visits');
+      localStorage.removeItem('jnl_react_visits');
+    } catch {
+      // Ignore storage errors
+    }
+
+    // 2. Real, verifiable local browser visitor tracking
     const stored = localStorage.getItem('jnl_real_visits');
     let currentVisits = 1;
 
     if (stored) {
       const parsed = parseInt(stored, 10);
-      if (!isNaN(parsed) && parsed > 0) {
-        // Increment once per distinct session
+      // Reset if it was tainted by any legacy > 500 fake seed
+      if (!isNaN(parsed) && parsed > 0 && parsed < 1000) {
         const sessionCounted = sessionStorage.getItem('jnl_visit_counted');
         if (!sessionCounted) {
           currentVisits = parsed + 1;
@@ -19,6 +27,9 @@ export const VisitorBadge: React.FC = () => {
         } else {
           currentVisits = parsed;
         }
+      } else {
+        currentVisits = 1;
+        sessionStorage.setItem('jnl_visit_counted', 'true');
       }
     } else {
       currentVisits = 1;

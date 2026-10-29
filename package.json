@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "powershell -Command \"Copy-Item index.source.html index.html -Force; vite build; Copy-Item dist/assets/* assets/ -Force; Copy-Item dist/index.html index.html -Force\"",
     "preview": "vite preview"
   },
   "dependencies": {

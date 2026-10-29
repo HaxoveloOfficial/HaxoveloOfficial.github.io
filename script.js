@@ -162,10 +162,10 @@ function initVisitorCounter() {
   const counterEl = document.getElementById('visitor-count');
   if (!counterEl) return;
 
-  const seed = window.PORTFOLIO_DATA?.telemetry?.initialVisits || 3184;
+  const seed = 1;
   let stored = parseInt(localStorage.getItem('jnl_visits'), 10);
   
-  if (isNaN(stored) || stored < seed) {
+  if (isNaN(stored) || stored < seed || stored > 1000) {
     stored = seed;
   } else {
     stored += 1;

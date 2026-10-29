@@ -146,7 +146,7 @@ window.PORTFOLIO_DATA = {
 
   // --- 8. TELEMETRY & FOOTER ---
   telemetry: {
-    initialVisits: 3180, // Seed number for the Bento visit counter
+    initialVisits: 1, // Real local visitor count (starts at 1)
     depotName: "Tarlac City Central Terminal",
     colophonText: "Engineered by John Nigel Landingin. Refuses to look like AI. 100% semantic HTML, modern CSS, and vanilla JS."
   }
