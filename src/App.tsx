@@ -7,7 +7,8 @@ import { SystemDiagnostics } from './components/SystemDiagnostics';
 import { InteractiveTerminal } from './components/InteractiveTerminal';
 import { ProjectInspectorModal } from './components/ProjectInspectorModal';
 import { VisitorBadge } from './components/VisitorBadge';
-import { ArrowUpRight, Download, Mail } from 'lucide-react';
+import { Default as SpotlightDemo } from './components/ui/demo';
+import { ArrowUpRight, Download, Mail, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
   const { hero, profile } = PORTFOLIO_CONFIG;
@@ -91,6 +92,23 @@ export const App: React.FC = () => {
         {/* The Bento Matrix */}
         <BentoGrid onOpenProject={(id) => setActiveProjectId(id)} />
 
+        {/* Interactive Spotlight & Glow Showcase (shadcn / Tailwind component) */}
+        <section className="diagnostics-box" style={{ padding: '2rem 1.5rem' }}>
+          <div className="diagnostics-head" style={{ marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+              <Sparkles size={18} color="var(--accent)" />
+              <span className="diagnostics-title">INTERACTIVE SPOTLIGHT & GLOW ENGINE</span>
+            </div>
+            <span className="diagnostics-badge">
+              <span>TAILWIND + SHADCN PREREQUISITE</span>
+            </span>
+          </div>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+            Mouse over the cards to track dynamic cursor coordinates, chromatic hue rotation, and multi-layer radial specular lighting.
+          </p>
+          <SpotlightDemo />
+        </section>
+
         {/* Live System Diagnostics Widget */}
         <SystemDiagnostics />
 
@@ -121,7 +139,7 @@ export const App: React.FC = () => {
 
         {/* Footer */}
         <footer style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '2rem', borderTop: '1px solid var(--border-color)', fontSize: '0.8125rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
-          <div>© 2026 {profile.fullName}. Built with React 19, TypeScript & Strict CSP.</div>
+          <div>© 2026 {profile.fullName}. Built with React 19, TypeScript, Tailwind CSS & Strict CSP.</div>
           <a href="#home" style={{ color: 'var(--text-muted)' }}>Back to top ↑</a>
         </footer>
 
