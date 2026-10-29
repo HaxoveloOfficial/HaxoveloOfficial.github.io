@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PORTFOLIO_CONFIG } from './config/portfolio.config';
-import { PortfolioConfig } from './types/portfolio';
+import { PortfolioConfig, SessionRole } from './types/portfolio';
 import { Sidebar } from './components/Sidebar';
 import { DailyDrivers } from './components/DailyDrivers';
 import { BentoGrid } from './components/BentoGrid';
@@ -8,10 +8,10 @@ import { SystemDiagnostics } from './components/SystemDiagnostics';
 import { InteractiveTerminal } from './components/InteractiveTerminal';
 import { ProjectInspectorModal } from './components/ProjectInspectorModal';
 import { VisitorBadge } from './components/VisitorBadge';
-import { LoginModal } from './components/LoginModal';
+import { AccessGateway } from './components/AccessGateway';
 import { AdminDeck } from './components/AdminDeck';
 import { Default as SpotlightDemo } from './components/ui/demo';
-import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock } from 'lucide-react';
+import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock, UserCheck, Shield } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Live editable config state
@@ -25,11 +25,24 @@ export const App: React.FC = () => {
     return localStorage.getItem('jnl_large_text') === 'true';
   });
 
-  // Security & Authentication State
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-    return sessionStorage.getItem('jnl_admin_auth') === 'true';
+  // Access Tier & Authentication State
+  const [sessionRole, setSessionRole] = useState<SessionRole>(() => {
+    const saved = sessionStorage.getItem('jnl_session_role') as SessionRole;
+    if (saved === 'operator' || saved === 'authorized' || saved === 'guest') {
+      return saved;
+    }
+    return 'guest'; // Default fallback
   });
-  const [isLoginOpen, setIsLoginOpen] = useState<boolean>(false);
+
+  const [sessionUser, setSessionUser] = useState<string>(() => {
+    return sessionStorage.getItem('jnl_session_user') || '';
+  });
+
+  // Gateway Modal: If user visits for the first time in this session, show Gateway immediately
+  const [isGatewayOpen, setIsGatewayOpen] = useState<boolean>(() => {
+    return !sessionStorage.getItem('jnl_session_initialized');
+  });
+
   const [isAdminDeckOpen, setIsAdminDeckOpen] = useState<boolean>(false);
 
   // Modals & Feedback
@@ -54,7 +67,7 @@ export const App: React.FC = () => {
 
   // Global Keyboard Shortcuts
   // ~ or ` for terminal
-  // Alt+L or Ctrl+Shift+L for Operator Login
+  // Alt+L or Ctrl+Shift+L for Access / Admin
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '`' || e.key === '~') {
@@ -62,16 +75,16 @@ export const App: React.FC = () => {
         setIsTerminalOpen(prev => !prev);
       } else if ((e.altKey && (e.key === 'l' || e.key === 'L')) || (e.ctrlKey && e.shiftKey && (e.key === 'l' || e.key === 'L'))) {
         e.preventDefault();
-        if (isAdmin) {
+        if (sessionRole === 'operator') {
           setIsAdminDeckOpen(true);
         } else {
-          setIsLoginOpen(true);
+          setIsGatewayOpen(true);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isAdmin]);
+  }, [sessionRole]);
 
   const handleToggleTheme = () => {
     const themes: ('dark' | 'light' | 'terminal')[] = ['dark', 'light', 'terminal'];
@@ -88,39 +101,66 @@ export const App: React.FC = () => {
     });
   };
 
-  const handleLoginSuccess = () => {
-    setIsAdmin(true);
-    sessionStorage.setItem('jnl_admin_auth', 'true');
-    setIsAdminDeckOpen(true);
+  const handleSelectRole = (role: SessionRole, username?: string, email?: string) => {
+    setSessionRole(role);
+    sessionStorage.setItem('jnl_session_role', role);
+    sessionStorage.setItem('jnl_session_initialized', 'true');
+
+    if (role === 'operator') {
+      const opName = 'John Nigel Landingin';
+      setSessionUser(opName);
+      sessionStorage.setItem('jnl_session_user', opName);
+      sessionStorage.setItem('jnl_admin_auth', 'true');
+      setIsAdminDeckOpen(true);
+    } else if (role === 'authorized') {
+      const uName = username || 'Authorized User';
+      setSessionUser(uName);
+      sessionStorage.setItem('jnl_session_user', uName);
+      if (email) sessionStorage.setItem('jnl_session_email', email);
+      sessionStorage.removeItem('jnl_admin_auth');
+    } else {
+      setSessionUser('');
+      sessionStorage.removeItem('jnl_session_user');
+      sessionStorage.removeItem('jnl_session_email');
+      sessionStorage.removeItem('jnl_admin_auth');
+    }
   };
 
-  const handleLogoutAdmin = () => {
-    setIsAdmin(false);
+  const handleLogout = () => {
+    setSessionRole('guest');
+    setSessionUser('');
+    sessionStorage.setItem('jnl_session_role', 'guest');
+    sessionStorage.removeItem('jnl_session_user');
+    sessionStorage.removeItem('jnl_session_email');
     sessionStorage.removeItem('jnl_admin_auth');
     setIsAdminDeckOpen(false);
-    showToast("Session Locked. Returned to Guest Mode.");
+    showToast("Session Locked. Returned to Public Guest Mode.");
   };
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage(null);
-    }, 3000);
+    }, 3200);
   };
+
+  const isGuest = sessionRole === 'guest';
+  const isOperator = sessionRole === 'operator';
 
   return (
     <div className="app-layout">
-      {/* 1. Accessible Sidebar with A11y & Admin Controls */}
+      {/* 1. Accessible Sidebar with A11y & Access Controls */}
       <Sidebar 
         config={config}
         currentTheme={theme} 
         isLargeText={isLargeText}
-        isAdmin={isAdmin}
+        sessionRole={sessionRole}
+        sessionUser={sessionUser}
         onToggleTheme={handleToggleTheme}
         onToggleTextSize={handleToggleTextSize}
         onOpenTerminal={() => setIsTerminalOpen(true)}
-        onOpenLogin={() => setIsLoginOpen(true)}
-        onLogoutAdmin={handleLogoutAdmin}
+        onOpenGateway={() => setIsGatewayOpen(true)}
+        onLogout={handleLogout}
         onOpenAdminDeck={() => setIsAdminDeckOpen(true)}
         onShowToast={showToast}
       />
@@ -129,22 +169,38 @@ export const App: React.FC = () => {
       <main className="app-main" id="home">
         
         {/* Security / Session Mode Banner */}
-        <div className="security-status-banner" style={{ border: '2px solid var(--accent-orange)' }}>
+        <div 
+          className="security-status-banner" 
+          style={{ 
+            border: isOperator 
+              ? '2px solid var(--accent-orange)' 
+              : sessionRole === 'authorized' 
+              ? '2px solid var(--accent-blue)' 
+              : '2px solid var(--border-color)',
+            boxShadow: isOperator ? '0 4px 15px rgba(249, 115, 22, 0.15)' : 'none'
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            {isAdmin ? (
+            {isOperator ? (
               <span className="status-badge-admin" style={{ color: 'var(--accent-orange)', fontWeight: 800 }}>
                 <Unlock size={18} />
-                <span>ADMIN ACTIVE: Live Customizer & Scalability Tools Unlocked</span>
+                <span>MASTER OPERATOR ACTIVE: Command Deck, Customizer & Code Blueprints Unlocked</span>
+              </span>
+            ) : sessionRole === 'authorized' ? (
+              <span className="status-badge-public" style={{ color: 'var(--accent-blue)', fontWeight: 800 }}>
+                <UserCheck size={18} />
+                <span>VERIFIED USER SESSION (@{sessionUser}): Architecture Blueprints & Source Unlocked</span>
               </span>
             ) : (
-              <span className="status-badge-public" style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>
+              <span className="status-badge-public" style={{ color: 'var(--accent-yellow)', fontWeight: 700 }}>
                 <ShieldCheck size={18} />
-                <span>GUEST SESSION ACTIVE: Sanitized Public View • Sensitive Data Redacted</span>
+                <span>GUEST SESSION ACTIVE: Sanitized Public View • Architecture Locked</span>
               </span>
             )}
           </div>
+
           <div>
-            {isAdmin ? (
+            {isOperator ? (
               <button 
                 onClick={() => setIsAdminDeckOpen(true)} 
                 className="bento-btn bento-btn--accent" 
@@ -152,9 +208,25 @@ export const App: React.FC = () => {
               >
                 Open Command Deck
               </button>
+            ) : sessionRole === 'authorized' ? (
+              <button 
+                onClick={() => setIsGatewayOpen(true)} 
+                className="bento-btn" 
+                style={{ 
+                  minHeight: '40px', 
+                  padding: '0.45rem 1.25rem',
+                  background: 'var(--accent-blue-dim)',
+                  border: '2px solid var(--accent-blue)',
+                  color: 'var(--accent-blue)',
+                  fontWeight: 700
+                }}
+              >
+                <Shield size={15} />
+                <span>Switch Access Tier</span>
+              </button>
             ) : (
               <button 
-                onClick={() => setIsLoginOpen(true)} 
+                onClick={() => setIsGatewayOpen(true)} 
                 className="bento-btn" 
                 style={{ 
                   minHeight: '40px', 
@@ -166,7 +238,7 @@ export const App: React.FC = () => {
                 }}
               >
                 <Lock size={15} />
-                <span>Operator Login (PIN: 2026)</span>
+                <span>Sign In / Create Account (Gmail OTP)</span>
               </button>
             )}
           </div>
@@ -220,7 +292,7 @@ export const App: React.FC = () => {
           <SpotlightDemo />
         </section>
 
-        {/* Live System Diagnostics Widget */}
+        {/* Live System Diagnostics Widget (100% Real Measured Browser Telemetry) */}
         <SystemDiagnostics />
 
         {/* Contact Banner */}
@@ -256,24 +328,24 @@ export const App: React.FC = () => {
 
       </main>
 
-      {/* Floating Visitor Badge */}
+      {/* Floating Visitor Badge (Real Measured Count) */}
       <VisitorBadge />
 
-      {/* Operator Authentication Login Modal */}
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
+      {/* Entrance Access Gateway & Auth System (Operator / Gmail OTP Account / Guest) */}
+      <AccessGateway 
+        isOpen={isGatewayOpen}
+        onClose={() => setIsGatewayOpen(false)}
+        onSelectRole={handleSelectRole}
         onShowToast={showToast}
       />
 
-      {/* Operator Admin Command Deck */}
+      {/* Master Operator Admin Command Deck */}
       <AdminDeck 
         isOpen={isAdminDeckOpen}
         onClose={() => setIsAdminDeckOpen(false)}
         config={config}
         onUpdateConfig={(newConfig) => setConfig(newConfig)}
-        onLogout={handleLogoutAdmin}
+        onLogout={handleLogout}
         onShowToast={showToast}
       />
 
@@ -282,13 +354,16 @@ export const App: React.FC = () => {
         isOpen={isTerminalOpen} 
         onClose={() => setIsTerminalOpen(false)} 
         onSetTheme={(t) => setTheme(t)}
-        onOpenLogin={() => setIsLoginOpen(true)}
+        onOpenGateway={() => setIsGatewayOpen(true)}
       />
 
-      {/* Architecture Deep Dive Modal */}
+      {/* Architecture Deep Dive Modal (Locked for Guests, Unlocked for Operator & Verified Users) */}
       <ProjectInspectorModal 
         projectId={activeProjectId} 
-        onClose={() => setActiveProjectId(null)} 
+        onClose={() => setActiveProjectId(null)}
+        isGuest={isGuest}
+        userName={sessionUser}
+        onOpenLogin={() => setIsGatewayOpen(true)}
       />
 
       {/* Toast Feedback */}

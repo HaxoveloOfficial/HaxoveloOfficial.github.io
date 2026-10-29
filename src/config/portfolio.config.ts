@@ -193,7 +193,7 @@ export const PORTFOLIO_CONFIG: PortfolioConfig & { adminPinHash: string } = {
   ],
 
   telemetry: {
-    initialVisits: 3240,
+    initialVisits: 1, // Real local visitor tracking (starts at 1, no mock data)
     depotName: "Tarlac City Central Depot",
     colophonText: "Engineered with React 19, TypeScript, Tailwind CSS & Eye-Care Gradients."
   }

@@ -6,15 +6,15 @@ interface InteractiveTerminalProps {
   isOpen: boolean;
   onClose: () => void;
   onSetTheme: (theme: 'dark' | 'light' | 'terminal') => void;
-  onOpenLogin: () => void;
+  onOpenGateway: () => void;
 }
 
-export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen, onClose, onSetTheme, onOpenLogin }) => {
+export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen, onClose, onSetTheme, onOpenGateway }) => {
   const [history, setHistory] = useState<string[]>([
     "=== JNL OPERATING CONSOLE (v2.4.0) ===",
     "Connected to: Tarlac City Regional Depot (15.48° N, 120.60° E)",
-    "Security: Strict CSP / Zero Server Attack Surface Active",
-    "Type 'help' to inspect available system commands. Type 'login' for Admin Mode."
+    "Security: WebCrypto SHA-256 / Static CSP Active",
+    "Type 'help' to inspect available system commands. Type 'auth' for Gateway."
   ]);
   const [inputVal, setInputVal] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,9 +59,11 @@ export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen
 
       case 'login':
       case 'admin':
-        newHistory.push("Launching Operator Authentication Modal...");
+      case 'auth':
+      case 'register':
+        newHistory.push("Launching Access Verification Gateway...");
         onClose();
-        onOpenLogin();
+        onOpenGateway();
         break;
 
       case 'projects':

@@ -84,3 +84,20 @@ export interface PortfolioConfig {
   fieldStats: FieldStat[];
   telemetry: TelemetryConfig;
 }
+
+export type SessionRole = 'operator' | 'authorized' | 'guest';
+
+export interface RegisteredAccount {
+  username: string;
+  email: string;
+  role: 'authorized';
+  createdAt: string;
+}
+
+export interface AuthSession {
+  role: SessionRole;
+  username?: string;
+  email?: string;
+  loginTime: string;
+}
+

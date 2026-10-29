@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Sun, Moon, Terminal, Folder, Layers, Award, User, Cpu, Lock, Unlock, ZoomIn } from 'lucide-react';
-import { PortfolioConfig } from '../types/portfolio';
+import { Mail, Sun, Moon, Terminal, Folder, Layers, Award, User, Cpu, Lock, Unlock, ZoomIn, UserCheck, Shield } from 'lucide-react';
+import { PortfolioConfig, SessionRole } from '../types/portfolio';
 
 interface SidebarProps {
   config: PortfolioConfig;
   currentTheme: 'dark' | 'light' | 'terminal';
   isLargeText: boolean;
-  isAdmin: boolean;
+  sessionRole: SessionRole;
+  sessionUser?: string;
   onToggleTheme: () => void;
   onToggleTextSize: () => void;
   onOpenTerminal: () => void;
-  onOpenLogin: () => void;
-  onLogoutAdmin: () => void;
+  onOpenGateway: () => void;
+  onLogout: () => void;
   onOpenAdminDeck: () => void;
   onShowToast: (msg: string) => void;
 }
@@ -20,12 +21,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   config,
   currentTheme, 
   isLargeText,
-  isAdmin,
+  sessionRole,
+  sessionUser,
   onToggleTheme, 
   onToggleTextSize,
   onOpenTerminal, 
-  onOpenLogin,
-  onLogoutAdmin,
+  onOpenGateway,
+  onLogout,
   onOpenAdminDeck,
   onShowToast 
 }) => {
@@ -88,10 +90,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="sidebar-role">{profile.role}</div>
           </div>
 
-          {/* High-Visibility Operator Login Button */}
+          {/* High-Visibility Access Control Card based on Session Tier */}
           <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
-            {isAdmin ? (
+            {sessionRole === 'operator' ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ 
+                  padding: '0.4rem 0.6rem', 
+                  borderRadius: '6px', 
+                  backgroundColor: 'var(--accent-orange-dim)', 
+                  border: '1px solid var(--accent-orange)', 
+                  fontSize: '0.8rem', 
+                  fontFamily: 'var(--font-mono)', 
+                  fontWeight: 800, 
+                  color: 'var(--accent-orange)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <Unlock size={14} />
+                  <span>MASTER OPERATOR ACTIVE</span>
+                </div>
                 <button 
                   onClick={onOpenAdminDeck} 
                   className="bento-btn bento-btn--accent" 
@@ -101,32 +120,72 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   <span>Admin Command Deck</span>
                 </button>
                 <button 
-                  onClick={onLogoutAdmin} 
+                  onClick={onLogout} 
                   className="bento-btn bento-btn--outline" 
                   style={{ width: '100%', fontSize: '0.8rem', minHeight: '36px' }}
                 >
                   <span>Lock Session (Logout)</span>
                 </button>
               </div>
+            ) : sessionRole === 'authorized' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ 
+                  padding: '0.4rem 0.6rem', 
+                  borderRadius: '6px', 
+                  backgroundColor: 'var(--accent-blue-dim)', 
+                  border: '1px solid var(--accent-blue)', 
+                  fontSize: '0.8rem', 
+                  fontFamily: 'var(--font-mono)', 
+                  fontWeight: 800, 
+                  color: 'var(--accent-blue)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem'
+                }}>
+                  <UserCheck size={14} />
+                  <span>VERIFIED: @{sessionUser || 'User'}</span>
+                </div>
+                <button 
+                  onClick={onOpenGateway} 
+                  className="bento-btn bento-btn--outline" 
+                  style={{ width: '100%', fontSize: '0.85rem', minHeight: '42px', color: 'var(--accent-blue)', borderColor: 'var(--accent-blue)' }}
+                >
+                  <Shield size={15} />
+                  <span>Switch Access / Profile</span>
+                </button>
+                <button 
+                  onClick={onLogout} 
+                  className="bento-btn bento-btn--outline" 
+                  style={{ width: '100%', fontSize: '0.8rem', minHeight: '36px' }}
+                >
+                  <span>Sign Out</span>
+                </button>
+              </div>
             ) : (
-              <button 
-                onClick={onOpenLogin} 
-                className="bento-btn" 
-                style={{ 
-                  width: '100%', 
-                  background: 'var(--accent-orange-dim)', 
-                  border: '2px solid var(--accent-orange)', 
-                  color: 'var(--accent-orange)',
-                  fontWeight: 800,
-                  fontSize: '0.9rem',
-                  minHeight: '46px',
-                  boxShadow: '0 4px 14px rgba(249, 115, 22, 0.2)'
-                }}
-                title="Click to authenticate as Operator (PIN: 2026)"
-              >
-                <Lock size={16} />
-                <span>Operator Login (PIN: 2026)</span>
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button 
+                  onClick={onOpenGateway} 
+                  className="bento-btn" 
+                  style={{ 
+                    width: '100%', 
+                    background: 'var(--accent-orange-dim)', 
+                    border: '2px solid var(--accent-orange)', 
+                    color: 'var(--accent-orange)',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    minHeight: '48px',
+                    boxShadow: '0 4px 14px rgba(249, 115, 22, 0.2)'
+                  }}
+                  title="Click to sign in or create an authorized account"
+                >
+                  <Lock size={16} />
+                  <span>Sign In / Create Account</span>
+                </button>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                  Guest Mode: Limited Access
+                </span>
+              </div>
             )}
           </div>
 
@@ -226,8 +285,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="telemetry-coord">{profile.coordinates} (Tarlac Depot)</div>
           </div>
           <div className="telemetry-status">
-            <span className="status-pulse-dot"></span>
-            <span className="status-caption">{isAdmin ? "Admin: Authenticated" : "Public: Guest Safe"}</span>
+            <span className="status-pulse-dot" style={{ backgroundColor: sessionRole === 'operator' ? 'var(--accent-orange)' : sessionRole === 'authorized' ? 'var(--accent-blue)' : 'var(--text-dim)' }}></span>
+            <span className="status-caption">
+              {sessionRole === 'operator' ? "Role: Master Operator" : sessionRole === 'authorized' ? `Role: Verified User (@${sessionUser})` : "Role: Guest (Limited)"}
+            </span>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, Save, Copy, Plus, Sliders, Lock } from 'lucide-react';
-import { PortfolioConfig, ProjectItem } from '../types/portfolio';
+import React, { useState, useEffect } from 'react';
+import { X, Save, Copy, Plus, Sliders, Lock, Users, Trash2 } from 'lucide-react';
+import { PortfolioConfig, ProjectItem, RegisteredAccount } from '../types/portfolio';
 
 interface AdminDeckProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
   onLogout,
   onShowToast
 }) => {
-  const [activeTab, setActiveTab] = useState<'content' | 'projects' | 'snippets'>('content');
+  const [activeTab, setActiveTab] = useState<'content' | 'projects' | 'snippets' | 'accounts'>('content');
   
   // Local editable form states
   const [fullName, setFullName] = useState(config.profile.fullName);
@@ -34,6 +34,24 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
   const [newDesc, setNewDesc] = useState('');
   const [newTech, setNewTech] = useState('');
   const [newUrl, setNewUrl] = useState('');
+
+  // Registered accounts state
+  const [accounts, setAccounts] = useState<RegisteredAccount[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      try {
+        const raw = localStorage.getItem('jnl_registered_accounts');
+        if (raw) {
+          setAccounts(JSON.parse(raw));
+        } else {
+          setAccounts([]);
+        }
+      } catch {
+        setAccounts([]);
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -95,33 +113,45 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
     onShowToast("Copied full configuration JSON to clipboard!");
   };
 
+  const handleDeleteAccount = (username: string) => {
+    const updated = accounts.filter(a => a.username !== username);
+    setAccounts(updated);
+    localStorage.setItem('jnl_registered_accounts', JSON.stringify(updated));
+    onShowToast(`Account @${username} removed.`);
+  };
+
+  const copySnippet = (code: string, label: string) => {
+    navigator.clipboard.writeText(code);
+    onShowToast(`Copied ${label} snippet to clipboard!`);
+  };
+
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card modal-card--lg" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 900 }}>
+      <div className="modal-card modal-card--lg" onClick={(e) => e.stopPropagation()} style={{ border: '2px solid var(--accent-orange)' }}>
         {/* Head */}
         <div className="modal-head">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Sliders size={22} color="var(--accent-orange)" />
             <div>
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Admin Command Deck</h3>
+              <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Master Admin Command Deck</h3>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
-                Authenticated Operator Session // Scalable Configuration
+                Authenticated Operator Session // Scalable Configuration & Future Modules
               </span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button onClick={onLogout} className="bento-btn bento-btn--sm bento-btn--outline" title="Lock and return to Guest Mode">
               <Lock size={14} />
-              <span>Lock / Logout</span>
+              <span>Lock Session</span>
             </button>
-            <button onClick={onClose} className="icon-btn" style={{ minWidth: '40px', minHeight: '40px' }}>
+            <button onClick={onClose} className="icon-btn" style={{ minWidth: '40px', minHeight: '40px' }} aria-label="Close">
               <X size={18} />
             </button>
           </div>
         </div>
 
         {/* Tab Controls */}
-        <div style={{ display: 'flex', borderBottom: '2px solid var(--border-color)', background: 'var(--bg-card-sub)', padding: '0 1.5rem' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '2px solid var(--border-color)', background: 'var(--bg-card-sub)', padding: '0 1rem' }}>
           <button 
             onClick={() => setActiveTab('content')} 
             className={`filter-pill ${activeTab === 'content' ? 'active' : ''}`}
@@ -137,16 +167,24 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             Add New Project
           </button>
           <button 
+            onClick={() => setActiveTab('accounts')} 
+            className={`filter-pill ${activeTab === 'accounts' ? 'active' : ''}`}
+            style={{ borderRadius: '0', borderBottom: 'none', minHeight: '48px' }}
+          >
+            Verified Accounts ({accounts.length})
+          </button>
+          <button 
             onClick={() => setActiveTab('snippets')} 
             className={`filter-pill ${activeTab === 'snippets' ? 'active' : ''}`}
             style={{ borderRadius: '0', borderBottom: 'none', minHeight: '48px' }}
           >
-            Export & Scalability
+            Copy-Paste Scalability Snippets
           </button>
         </div>
 
         {/* Body */}
         <div className="modal-body">
+          {/* Tab 1: Live Content Editor */}
           {activeTab === 'content' && (
             <form onSubmit={handleSaveContent} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="admin-input-group">
@@ -183,6 +221,7 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             </form>
           )}
 
+          {/* Tab 2: Add Project Form */}
           {activeTab === 'projects' && (
             <form onSubmit={handleAddProject} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
@@ -223,6 +262,65 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             </form>
           )}
 
+          {/* Tab 3: Verified Accounts Management */}
+          {activeTab === 'accounts' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Verified User Accounts (Gmail OTP)</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                    Accounts created and authorized through Gmail OTP verification on this depot.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--accent-blue)', fontFamily: 'var(--font-mono)', fontSize: '0.85rem' }}>
+                  <Users size={16} />
+                  <span>{accounts.length} Registered</span>
+                </div>
+              </div>
+
+              {accounts.length === 0 ? (
+                <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: 'var(--bg-card-sub)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-color)', color: 'var(--text-dim)' }}>
+                  No guest accounts created yet. New accounts registered via Gmail OTP will appear here.
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {accounts.map((acc, idx) => (
+                    <div 
+                      key={idx}
+                      style={{
+                        padding: '1rem',
+                        borderRadius: 'var(--radius-md)',
+                        backgroundColor: 'var(--bg-card-sub)',
+                        border: '1px solid var(--border-color)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 800, color: 'var(--text-main)', fontSize: '1rem' }}>
+                          @{acc.username}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                          {acc.email} • Registered {new Date(acc.createdAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => handleDeleteAccount(acc.username)}
+                        className="icon-btn"
+                        style={{ color: '#ef4444', borderColor: '#ef4444' }}
+                        title="Remove Account Authority"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 4: Copy-Paste Scalability Snippets */}
           {activeTab === 'snippets' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
@@ -236,22 +334,93 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
                 </button>
               </div>
 
-              <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '1.5rem' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.5rem' }}>Future Scaling: Reusable Bento Card Snippet</h4>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                  Copy this snippet to quickly add custom responsive cards anywhere in the app:
-                </p>
-                <pre style={{ padding: '1rem', background: '#090e17', border: '1px solid var(--border-color)', borderRadius: '8px', overflowX: 'auto', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-blue)' }}>
-{`<article className="bento-card">
+              {/* Snippet A: Reusable Bento Card */}
+              <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Snippet 1: Reusable Eye-Care Bento Card</h4>
+                  <button 
+                    onClick={() => copySnippet(`<article className="bento-card">
   <div className="bento-card__head">
-    <span className="bento-card-title">NEW MODULE</span>
+    <span className="bento-card-title">NEW SYSTEM MODULE</span>
     <span className="bento-badge">SCALE</span>
   </div>
-  <p className="bento-card-sub">Module description goes here.</p>
-  {/* Content / Visuals */}
+  <p className="bento-card-sub">Module description and operational details.</p>
+</article>`, 'Bento Card')}
+                    className="bento-btn bento-btn--sm bento-btn--outline"
+                  >
+                    <Copy size={14} />
+                    <span>Copy Snippet</span>
+                  </button>
+                </div>
+                <pre style={{ padding: '0.85rem', background: '#090e17', border: '1px solid var(--border-color)', borderRadius: '8px', overflowX: 'auto', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-blue)' }}>
+{`<article className="bento-card">
+  <div className="bento-card__head">
+    <span className="bento-card-title">NEW SYSTEM MODULE</span>
+    <span className="bento-badge">SCALE</span>
+  </div>
+  <p className="bento-card-sub">Module description and operational details.</p>
 </article>`}
                 </pre>
               </div>
+
+              {/* Snippet B: Daily Driver Item */}
+              <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Snippet 2: Daily Driver Skill Object</h4>
+                  <button 
+                    onClick={() => copySnippet(`{ name: "Docker & Containerization", tag: "DevOps & Deployment" },`, 'Daily Driver')}
+                    className="bento-btn bento-btn--sm bento-btn--outline"
+                  >
+                    <Copy size={14} />
+                    <span>Copy Snippet</span>
+                  </button>
+                </div>
+                <pre style={{ padding: '0.85rem', background: '#090e17', border: '1px solid var(--border-color)', borderRadius: '8px', overflowX: 'auto', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-yellow)' }}>
+{`{ name: "Docker & Containerization", tag: "DevOps & Deployment" },`}
+                </pre>
+              </div>
+
+              {/* Snippet C: Full Project Item */}
+              <div style={{ borderTop: '2px solid var(--border-color)', paddingTop: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700 }}>Snippet 3: Complete Project Configuration Schema</h4>
+                  <button 
+                    onClick={() => copySnippet(`{
+  id: "my-new-system",
+  tag: "DISTRIBUTED ARCHITECTURE",
+  title: "Next-Gen System Project",
+  description: "Offline-capable distributed architecture with transactional consistency.",
+  techStack: ["C#", ".NET 8", "PostgreSQL", "Docker"],
+  githubUrl: "https://github.com/HaxoveloOfficial/new-system",
+  demoBadge: "Production Ready",
+  deepDive: {
+    problem: "Data synchronization issues across disconnected networks.",
+    solution: "Implemented event-sourcing and local write-ahead log replication."
+  }
+},`, 'Project Schema')}
+                    className="bento-btn bento-btn--sm bento-btn--outline"
+                  >
+                    <Copy size={14} />
+                    <span>Copy Snippet</span>
+                  </button>
+                </div>
+                <pre style={{ padding: '0.85rem', background: '#090e17', border: '1px solid var(--border-color)', borderRadius: '8px', overflowX: 'auto', fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent-orange)' }}>
+{`{
+  id: "my-new-system",
+  tag: "DISTRIBUTED ARCHITECTURE",
+  title: "Next-Gen System Project",
+  description: "Offline-capable distributed architecture with transactional consistency.",
+  techStack: ["C#", ".NET 8", "PostgreSQL", "Docker"],
+  githubUrl: "https://github.com/HaxoveloOfficial/new-system",
+  demoBadge: "Production Ready",
+  deepDive: {
+    problem: "Data synchronization issues across disconnected networks.",
+    solution: "Implemented event-sourcing and local write-ahead log replication."
+  }
+},`}
+                </pre>
+              </div>
+
             </div>
           )}
         </div>
