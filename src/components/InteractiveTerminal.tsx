@@ -6,14 +6,15 @@ interface InteractiveTerminalProps {
   isOpen: boolean;
   onClose: () => void;
   onSetTheme: (theme: 'dark' | 'light' | 'terminal') => void;
+  onOpenLogin: () => void;
 }
 
-export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen, onClose, onSetTheme }) => {
+export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen, onClose, onSetTheme, onOpenLogin }) => {
   const [history, setHistory] = useState<string[]>([
     "=== JNL OPERATING CONSOLE (v2.4.0) ===",
     "Connected to: Tarlac City Regional Depot (15.48° N, 120.60° E)",
     "Security: Strict CSP / Zero Server Attack Surface Active",
-    "Type 'help' to inspect available system commands."
+    "Type 'help' to inspect available system commands. Type 'login' for Admin Mode."
   ]);
   const [inputVal, setInputVal] = useState<string>('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -44,6 +45,7 @@ export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen
       case 'help':
         newHistory.push(
           "Available Commands:",
+          "  login        - Unlock Operator Admin Command Deck (PIN: 2026)",
           "  projects     - List primary engineering projects",
           "  skills       - Print verified technical stack",
           "  cat resume   - Print credentials & education summary",
@@ -55,17 +57,29 @@ export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen
         );
         break;
 
+      case 'login':
+      case 'admin':
+        newHistory.push("Launching Operator Authentication Modal...");
+        onClose();
+        onOpenLogin();
+        break;
+
       case 'projects':
         newHistory.push(
           "1. Transport & Logistics Delivery Management System [C# / .NET / SQL Server]",
           "2. Interactive 3D Product Showcase [Unity 3D / C# / PBR Shaders]",
-          "3. Municipal Records & 4Ps Welfare Pipeline [City of Tarlac PESO / Brgy. Balete]"
+          "3. Enterprise Architecture & BMC Framework [ArchiMate 3.1 / TOGAF]",
+          "4. Emerald Microfinance Core Ledger [C# / Relational Database]",
+          "5. Municipal Records & Welfare Pipeline [City of Tarlac PESO / Brgy. Balete]",
+          "6. Data Communications & LAN Lab [RJ45 T568B / Network Routing]",
+          "7. NFS Heat Garage Vehicle Engine [Mathematical Simulation]"
         );
         break;
 
       case 'skills':
         newHistory.push(
-          "Languages & Frameworks: C# (.NET 8/WinForms/WPF), Java, SQL, TypeScript/React",
+          "Languages & Frameworks: C# (.NET 8/WinForms/WPF), Java, SQL, TypeScript/React, Angular",
+          "Enterprise Systems: ArchiMate 3.1, TOGAF Standard, Business Model Canvas",
           "Systems & Operations: Linux LPI Administration, Windows Server, Git/GitHub",
           "Physical & Media: PC Assembly & Diagnostics, LAN Cabling (T568B), Unity 3D, Photoshop"
         );
@@ -119,7 +133,7 @@ export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen
         return;
 
       default:
-        newHistory.push(`Command not recognized: '${cmd}'. Type 'help' for instructions.`);
+        newHistory.push(`Command not recognized: '${cmd}'. Type 'help' or 'login'.`);
         break;
     }
 
@@ -154,7 +168,7 @@ export const InteractiveTerminal: React.FC<InteractiveTerminalProps> = ({ isOpen
             className="cli-input"
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
-            placeholder="Type command ('help', 'projects', 'cat resume')..."
+            placeholder="Type command ('help', 'login', 'projects', 'cat resume')..."
             autoComplete="off"
             spellCheck="false"
           />

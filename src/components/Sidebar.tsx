@@ -88,6 +88,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="sidebar-role">{profile.role}</div>
           </div>
 
+          {/* High-Visibility Operator Login Button */}
+          <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
+            {isAdmin ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <button 
+                  onClick={onOpenAdminDeck} 
+                  className="bento-btn bento-btn--accent" 
+                  style={{ width: '100%', minHeight: '44px' }}
+                >
+                  <Unlock size={16} />
+                  <span>Admin Command Deck</span>
+                </button>
+                <button 
+                  onClick={onLogoutAdmin} 
+                  className="bento-btn bento-btn--outline" 
+                  style={{ width: '100%', fontSize: '0.8rem', minHeight: '36px' }}
+                >
+                  <span>Lock Session (Logout)</span>
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={onOpenLogin} 
+                className="bento-btn" 
+                style={{ 
+                  width: '100%', 
+                  background: 'var(--accent-orange-dim)', 
+                  border: '2px solid var(--accent-orange)', 
+                  color: 'var(--accent-orange)',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  minHeight: '46px',
+                  boxShadow: '0 4px 14px rgba(249, 115, 22, 0.2)'
+                }}
+                title="Click to authenticate as Operator (PIN: 2026)"
+              >
+                <Lock size={16} />
+                <span>Operator Login (PIN: 2026)</span>
+              </button>
+            )}
+          </div>
+
           {/* Accessibility Control Toolbar (Elderly / Low-Vision Friendly) */}
           <div className="accessibility-toolbar" title="Accessibility & Eye-Care Controls">
             <button 
@@ -131,26 +173,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button onClick={onOpenTerminal} className="icon-btn" title="Open Interactive CLI Shell (~)">
               <Terminal size={18} />
             </button>
-          </div>
-
-          {/* Admin Mode Trigger / Status */}
-          <div style={{ marginTop: '0.85rem' }}>
-            {isAdmin ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                <button onClick={onOpenAdminDeck} className="bento-btn bento-btn--sm bento-btn--accent" style={{ width: '100%' }}>
-                  <Unlock size={14} />
-                  <span>Admin Command Deck</span>
-                </button>
-                <button onClick={onLogoutAdmin} className="bento-btn bento-btn--sm bento-btn--outline" style={{ width: '100%', fontSize: '0.75rem', minHeight: '34px' }}>
-                  <span>Lock Session (Logout)</span>
-                </button>
-              </div>
-            ) : (
-              <button onClick={onOpenLogin} className="bento-btn bento-btn--sm bento-btn--ghost" style={{ width: '100%' }}>
-                <Lock size={14} color="var(--accent-orange)" />
-                <span>Operator Login</span>
-              </button>
-            )}
           </div>
         </div>
 

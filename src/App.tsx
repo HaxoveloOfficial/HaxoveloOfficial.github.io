@@ -52,17 +52,26 @@ export const App: React.FC = () => {
     localStorage.setItem('jnl_large_text', String(isLargeText));
   }, [isLargeText]);
 
-  // Global Keyboard Shortcut (~ or ` for terminal)
+  // Global Keyboard Shortcuts
+  // ~ or ` for terminal
+  // Alt+L or Ctrl+Shift+L for Operator Login
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === '`' || e.key === '~') {
         e.preventDefault();
         setIsTerminalOpen(prev => !prev);
+      } else if ((e.altKey && (e.key === 'l' || e.key === 'L')) || (e.ctrlKey && e.shiftKey && (e.key === 'l' || e.key === 'L'))) {
+        e.preventDefault();
+        if (isAdmin) {
+          setIsAdminDeckOpen(true);
+        } else {
+          setIsLoginOpen(true);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isAdmin]);
 
   const handleToggleTheme = () => {
     const themes: ('dark' | 'light' | 'terminal')[] = ['dark', 'light', 'terminal'];
@@ -120,29 +129,44 @@ export const App: React.FC = () => {
       <main className="app-main" id="home">
         
         {/* Security / Session Mode Banner */}
-        <div className="security-status-banner">
+        <div className="security-status-banner" style={{ border: '2px solid var(--accent-orange)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             {isAdmin ? (
-              <span className="status-badge-admin">
-                <Unlock size={16} />
+              <span className="status-badge-admin" style={{ color: 'var(--accent-orange)', fontWeight: 800 }}>
+                <Unlock size={18} />
                 <span>ADMIN ACTIVE: Live Customizer & Scalability Tools Unlocked</span>
               </span>
             ) : (
-              <span className="status-badge-public">
-                <ShieldCheck size={16} />
+              <span className="status-badge-public" style={{ color: 'var(--accent-blue)', fontWeight: 700 }}>
+                <ShieldCheck size={18} />
                 <span>GUEST SESSION ACTIVE: Sanitized Public View • Sensitive Data Redacted</span>
               </span>
             )}
           </div>
           <div>
             {isAdmin ? (
-              <button onClick={() => setIsAdminDeckOpen(true)} className="bento-btn bento-btn--sm bento-btn--accent" style={{ minHeight: '36px' }}>
+              <button 
+                onClick={() => setIsAdminDeckOpen(true)} 
+                className="bento-btn bento-btn--accent" 
+                style={{ minHeight: '40px', padding: '0.45rem 1.25rem' }}
+              >
                 Open Command Deck
               </button>
             ) : (
-              <button onClick={() => setIsLoginOpen(true)} className="bento-btn bento-btn--sm bento-btn--outline" style={{ minHeight: '36px' }}>
-                <Lock size={13} />
-                <span>Operator Login</span>
+              <button 
+                onClick={() => setIsLoginOpen(true)} 
+                className="bento-btn" 
+                style={{ 
+                  minHeight: '40px', 
+                  padding: '0.45rem 1.25rem',
+                  background: 'var(--accent-orange-dim)',
+                  border: '2px solid var(--accent-orange)',
+                  color: 'var(--accent-orange)',
+                  fontWeight: 800
+                }}
+              >
+                <Lock size={15} />
+                <span>Operator Login (PIN: 2026)</span>
               </button>
             )}
           </div>
@@ -258,6 +282,7 @@ export const App: React.FC = () => {
         isOpen={isTerminalOpen} 
         onClose={() => setIsTerminalOpen(false)} 
         onSetTheme={(t) => setTheme(t)}
+        onOpenLogin={() => setIsLoginOpen(true)}
       />
 
       {/* Architecture Deep Dive Modal */}
