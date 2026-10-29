@@ -11,8 +11,9 @@ import { VisitorBadge } from './components/VisitorBadge';
 import { AccessGateway } from './components/AccessGateway';
 import { AdminDeck } from './components/AdminDeck';
 import { AiAssistant } from './components/AiAssistant';
+import { BrewedOpsProjectsView } from './components/BrewedOpsProjectsView';
 import { Default as SpotlightDemo } from './components/ui/demo';
-import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock, UserCheck, Shield, Bot } from 'lucide-react';
+import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock, UserCheck, Shield, Bot, LayoutGrid, Monitor } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Live editable config state
@@ -42,6 +43,11 @@ export const App: React.FC = () => {
   // Gateway Modal: If user visits for the first time in this session, show Gateway immediately
   const [isGatewayOpen, setIsGatewayOpen] = useState<boolean>(() => {
     return !sessionStorage.getItem('jnl_session_initialized');
+  });
+
+  // Projects View Layout Mode: 'brewedops' (macOS windows + marquee + 4-col apps) vs 'bento' (classic matrix)
+  const [projectsViewMode, setProjectsViewMode] = useState<'brewedops' | 'bento'>(() => {
+    return (localStorage.getItem('jnl_projects_view_mode') as 'brewedops' | 'bento') || 'brewedops';
   });
 
   const [isAdminDeckOpen, setIsAdminDeckOpen] = useState<boolean>(false);
@@ -273,8 +279,53 @@ export const App: React.FC = () => {
         {/* Daily Drivers Ribbon */}
         <DailyDrivers />
 
-        {/* The Bento Matrix (All 7 Projects with Filters) */}
-        <BentoGrid config={config} onOpenProject={(id) => setActiveProjectId(id)} />
+        {/* Viewport Layout Mode Switcher */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', padding: '0.65rem 1.25rem', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-color)', margin: '1.25rem 0 0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+            <span style={{ fontWeight: 800, color: 'var(--text-main)' }}>PROJECTS VIEWPORT:</span>
+            <span>Choose layout style</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={() => {
+                setProjectsViewMode('brewedops');
+                localStorage.setItem('jnl_projects_view_mode', 'brewedops');
+                showToast("Switched to BrewedOps Projects View");
+              }}
+              className={`filter-pill ${projectsViewMode === 'brewedops' ? 'active' : ''}`}
+              style={{ minHeight: '38px', padding: '0.35rem 1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              <Monitor size={14} />
+              <span>BrewedOps Layout (macOS & Marquee)</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setProjectsViewMode('bento');
+                localStorage.setItem('jnl_projects_view_mode', 'bento');
+                showToast("Switched to Classic Bento Matrix View");
+              }}
+              className={`filter-pill ${projectsViewMode === 'bento' ? 'active' : ''}`}
+              style={{ minHeight: '38px', padding: '0.35rem 1rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+            >
+              <LayoutGrid size={14} />
+              <span>Classic Bento Matrix</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Projects View */}
+        {projectsViewMode === 'brewedops' ? (
+          <BrewedOpsProjectsView 
+            isGuest={isGuest}
+            onOpenProjectInspector={(id) => setActiveProjectId(id)}
+            onOpenGateway={() => setIsGatewayOpen(true)}
+            onShowToast={showToast}
+          />
+        ) : (
+          <BentoGrid config={config} onOpenProject={(id) => setActiveProjectId(id)} />
+        )}
 
         {/* Interactive Spotlight & Glow Showcase (shadcn / Tailwind component) */}
         <section className="diagnostics-box" style={{ padding: '2.25rem 1.75rem', border: '2px solid var(--border-color)' }}>
