@@ -121,6 +121,17 @@ html {
   scroll-behavior: smooth;
 }
 
+#home,
+#bento-projects,
+#bento-services,
+#bento-credentials,
+#bento-about,
+#bento-bench,
+#bento-drivers,
+#contact {
+  scroll-margin-top: 1.5rem;
+}
+
 body {
   background-color: var(--bg-app);
   color: var(--text-main);

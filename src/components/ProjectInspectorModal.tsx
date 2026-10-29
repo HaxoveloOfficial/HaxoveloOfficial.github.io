@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { PORTFOLIO_CONFIG } from '../config/portfolio.config';
 import { X, ExternalLink, Lock, ShieldCheck, KeyRound } from 'lucide-react';
 
@@ -17,6 +17,16 @@ export const ProjectInspectorModal: React.FC<ProjectInspectorModalProps> = ({
   userName,
   onOpenLogin
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && projectId) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [projectId, onClose]);
+
   if (!projectId) return null;
 
   const project = PORTFOLIO_CONFIG.projects.find(p => p.id === projectId);

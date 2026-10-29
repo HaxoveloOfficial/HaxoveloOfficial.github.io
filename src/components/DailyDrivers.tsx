@@ -1,8 +1,19 @@
 import React from 'react';
 import { PORTFOLIO_CONFIG } from '../config/portfolio.config';
 
-export const DailyDrivers: React.FC = () => {
+interface DailyDriversProps {
+  onShowToast?: (msg: string) => void;
+}
+
+export const DailyDrivers: React.FC<DailyDriversProps> = ({ onShowToast }) => {
   const { dailyDrivers } = PORTFOLIO_CONFIG;
+
+  const handleCopyTool = (name: string) => {
+    navigator.clipboard.writeText(name);
+    if (onShowToast) {
+      onShowToast(`Copied tool: ${name}`);
+    }
+  };
 
   return (
     <section className="daily-drivers-strip" id="bento-drivers">
@@ -13,10 +24,16 @@ export const DailyDrivers: React.FC = () => {
       <div className="drivers-track-wrap">
         <div className="drivers-track">
           {dailyDrivers.map((driver, index) => (
-            <span key={index} className="driver-pill">
+            <button
+              key={index}
+              onClick={() => handleCopyTool(driver.name)}
+              className="driver-pill"
+              style={{ background: 'none', border: '1px solid var(--border-color)', color: 'inherit', cursor: 'pointer', textAlign: 'left', font: 'inherit' }}
+              title={`Click to copy: ${driver.name}`}
+            >
               <strong>{driver.name}</strong>
-              <span style={{ opacity: 0.5, fontSize: '0.85em' }}>• {driver.tag}</span>
-            </span>
+              <span style={{ opacity: 0.6, fontSize: '0.85em', marginLeft: '0.35rem' }}>• {driver.tag}</span>
+            </button>
           ))}
         </div>
       </div>

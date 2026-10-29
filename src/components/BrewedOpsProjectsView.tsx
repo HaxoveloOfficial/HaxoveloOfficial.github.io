@@ -7,6 +7,7 @@ interface BrewedOpsProjectsViewProps {
   isGuest: boolean;
   onOpenProjectInspector: (id: string) => void;
   onOpenGateway: () => void;
+  onOpenAiAssistant?: () => void;
   onShowToast: (msg: string) => void;
 }
 
@@ -60,7 +61,7 @@ const WORKFLOW_MARQUEE_ITEMS = [
     category: 'PHYSICAL INFRASTRUCTURE',
     desc: 'Switch patch panel termination and motherboard POST diagnostic telemetry.',
     image: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
-    projectId: 'lan'
+    projectId: 'datacom'
   }
 ];
 
@@ -68,11 +69,17 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
   isGuest,
   onOpenProjectInspector,
   onOpenGateway,
+  onOpenAiAssistant,
   onShowToast
 }) => {
   const [activeFilter, setActiveFilter] = useState<FilterCategory>('all');
   const [activeModalProject, setActiveModalProject] = useState<ProjectItem | null>(null);
   const [activeLightboxImage, setActiveLightboxImage] = useState<typeof WORKFLOW_MARQUEE_ITEMS[0] | null>(null);
+
+  const handleFilterChange = (cat: FilterCategory, label: string) => {
+    setActiveFilter(cat);
+    onShowToast(`Filtered: ${label}`);
+  };
 
   // Keyboard Escape listener for modals
   useEffect(() => {
@@ -119,7 +126,7 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
       {/* 2. Interactive Filter Pill Toolbar */}
       <div className="projects__tabs">
         <button
-          onClick={() => setActiveFilter('all')}
+          onClick={() => handleFilterChange('all', 'All Builds')}
           className={`projects__tab ${activeFilter === 'all' ? 'is-active' : ''}`}
         >
           <span>All Builds</span>
@@ -127,7 +134,7 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveFilter('desktop')}
+          onClick={() => handleFilterChange('desktop', 'C# / Desktop')}
           className={`projects__tab ${activeFilter === 'desktop' ? 'is-active' : ''}`}
         >
           <span>C# / Desktop</span>
@@ -135,7 +142,7 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveFilter('3d')}
+          onClick={() => handleFilterChange('3d', 'Unity 3D')}
           className={`projects__tab ${activeFilter === '3d' ? 'is-active' : ''}`}
         >
           <span>Unity 3D</span>
@@ -143,7 +150,7 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveFilter('enterprise')}
+          onClick={() => handleFilterChange('enterprise', 'Enterprise ArchiMate')}
           className={`projects__tab ${activeFilter === 'enterprise' ? 'is-active' : ''}`}
         >
           <span>Enterprise ArchiMate</span>
@@ -151,7 +158,7 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
         </button>
 
         <button
-          onClick={() => setActiveFilter('infrastructure')}
+          onClick={() => handleFilterChange('infrastructure', 'LAN & Systems')}
           className={`projects__tab ${activeFilter === 'infrastructure' ? 'is-active' : ''}`}
         >
           <span>LAN & Systems</span>
@@ -164,7 +171,15 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
         {/* Left Card: Primary Hero Project (Capstone Logistics) */}
         <div 
           className="funnels__preview"
+          role="button"
+          tabIndex={0}
           onClick={() => setActiveModalProject(PORTFOLIO_CONFIG.projects[0])}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setActiveModalProject(PORTFOLIO_CONFIG.projects[0]);
+            }
+          }}
           title="Click to open macOS Interactive System Inspector"
         >
           <div className="funnels__preview-bar">
@@ -218,7 +233,15 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
         {/* Right Card: Interactive 3D Showcase (Hexatronics) */}
         <div 
           className="funnels__preview"
+          role="button"
+          tabIndex={0}
           onClick={() => setActiveModalProject(PORTFOLIO_CONFIG.projects[1])}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setActiveModalProject(PORTFOLIO_CONFIG.projects[1]);
+            }
+          }}
           title="Click to open macOS Interactive System Inspector"
         >
           <div className="funnels__preview-bar">
@@ -343,8 +366,12 @@ export const BrewedOpsProjectsView: React.FC<BrewedOpsProjectsViewProps> = ({
               <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--accent)' }}>Zero Server Sleep</span>
               <button 
                 onClick={() => {
-                  const trigger = document.querySelector('.ai-assistant-trigger') as HTMLButtonElement;
-                  if (trigger) trigger.click();
+                  if (onOpenAiAssistant) {
+                    onOpenAiAssistant();
+                  } else {
+                    const trigger = document.querySelector('.ai-assistant-trigger') as HTMLButtonElement;
+                    if (trigger) trigger.click();
+                  }
                 }}
                 className="bento-btn bento-btn--sm bento-btn--accent"
                 style={{ padding: '0.3rem 0.75rem', fontSize: '0.75rem' }}

@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Sparkles, Mail, RefreshCw } from 'lucide-react';
+import { Bot, X, Send, Sparkles, Mail, RefreshCw, ArrowUpRight } from 'lucide-react';
 import { ChatMessage, CapturedEmail } from '../types/portfolio';
 
 interface AiAssistantProps {
+  isOpen?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
   onShowToast: (msg: string) => void;
   onOpenGateway?: () => void;
 }
@@ -106,8 +109,37 @@ Would you like to leave your email address or job inquiry? I will log it directl
   }
 ];
 
-export const AiAssistant: React.FC<AiAssistantProps> = ({ onShowToast, onOpenGateway }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+export const AiAssistant: React.FC<AiAssistantProps> = ({ 
+  isOpen: controlledIsOpen,
+  onOpen,
+  onClose,
+  onShowToast, 
+  onOpenGateway 
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState<boolean>(false);
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+
+  const handleOpen = () => {
+    if (onOpen) onOpen();
+    else setInternalIsOpen(true);
+  };
+
+  const handleClose = () => {
+    if (onClose) onClose();
+    else setInternalIsOpen(false);
+  };
+
+  // Keyboard Escape listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     return [
       {
@@ -116,6 +148,12 @@ export const AiAssistant: React.FC<AiAssistantProps> = ({ onShowToast, onOpenGat
         text: `Hello! I am John Nigel Landingin's personal **24/7 Systems AI Assistant**. 
 
 I have direct access to his Capstone C# architecture, Unity 3D engine workflows, enterprise systems, and verified credentials. How can I assist your review or inquiry today?`,
+        followUp: [
+          'Explain Capstone C# architecture',
+          'What did Nigel build at Hexatronics?',
+          'What are his daily drivers?',
+          'Is Nigel available for hire?'
+        ],
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ];
@@ -162,40 +200,41 @@ I have direct access to his Capstone C# architecture, Unity 3D engine workflows,
     }
   };
 
-  // Generate intelligent non-generic response
-  const generateResponse = (userText: string): string => {
+  // Generate intelligent non-generic response with follow-up prompts
+  const generateResponse = (userText: string): { answer: string; followUp?: string[] } => {
     const lower = userText.toLowerCase();
 
     // Check if user entered an email
     const detectedEmail = extractEmail(userText);
     if (detectedEmail) {
       saveCapturedEmail(detectedEmail, userText);
-      return `Thank you! I have captured your email (**${detectedEmail}**) and logged your inquiry directly into **John Nigel's Operator Dashboard**. 
-
-Nigel reviews his communications desk regularly and will respond directly to your Gmail. Is there any specific project architecture you would like me to explain while you're here?`;
+      return {
+        answer: `Thank you! I have captured your email (**${detectedEmail}**) and logged your inquiry directly into **John Nigel's Operator Dashboard**.\n\nNigel reviews his communications desk regularly and will respond directly to your Gmail. Is there any specific project architecture you would like me to explain while you're here?`,
+        followUp: ['Explain Capstone C# architecture', 'What did Nigel build at Hexatronics?', 'What are his daily drivers?']
+      };
     }
 
     // Match keywords from specific knowledge base
     for (const item of KNOWLEDGE_RESPONSES) {
       if (item.keywords.some(k => lower.includes(k))) {
-        return item.answer;
+        return { answer: item.answer, followUp: item.followUp };
       }
     }
 
     // Default intelligent contextual response
-    return `Regarding "${userText}": John Nigel Landingin specializes in dependable C#/.NET desktop architecture, relational databases, Unity 3D interactive graphics, and physical IT infrastructure.
-
-Notable highlights include:
-1. **Capstone Logistics Management:** C# .NET 8 offline-first caching with SQL Server.
-2. **Hexatronics Interactive 3D Showcase:** Unity 3D with 486 certified internship hours.
-3. **Enterprise Architecture:** ArchiMate 3.1 & TOGAF standard alignment.
-
-Would you like to examine one of these architectures in detail, or would you like to leave your email for Nigel?`;
+    return {
+      answer: `Regarding "${userText}": John Nigel Landingin specializes in dependable C#/.NET desktop architecture, relational databases, Unity 3D interactive graphics, and physical IT infrastructure.\n\nNotable highlights include:\n1. **Capstone Logistics Management:** C# .NET 8 offline-first caching with SQL Server.\n2. **Hexatronics Interactive 3D Showcase:** Unity 3D with 486 certified internship hours.\n3. **Enterprise Architecture:** ArchiMate 3.1 & TOGAF standard alignment.\n\nWould you like to examine one of these architectures in detail, or would you like to leave your email for Nigel?`,
+      followUp: ['Explain Capstone C# architecture', 'What did Nigel build at Hexatronics?', 'Leave an email for Nigel']
+    };
   };
 
   const handleSend = (textToSend?: string) => {
     const query = (textToSend || inputValue).trim();
     if (!query) return;
+
+    if (!isOpen) {
+      handleOpen();
+    }
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -210,11 +249,12 @@ Would you like to examine one of these architectures in detail, or would you lik
 
     // Simulate natural thinking duration
     setTimeout(() => {
-      const replyText = generateResponse(query);
+      const { answer, followUp } = generateResponse(query);
       const assistantMsg: ChatMessage = {
         id: `a-${Date.now()}`,
         sender: 'assistant',
-        text: replyText,
+        text: answer,
+        followUp: followUp,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, assistantMsg]);
@@ -228,6 +268,12 @@ Would you like to examine one of these architectures in detail, or would you lik
         id: 'welcome-reset',
         sender: 'assistant',
         text: `Chat cleared. I am online 24/7. How can I assist you with John Nigel Landingin's systems portfolio?`,
+        followUp: [
+          'Explain Capstone C# architecture',
+          'What did Nigel build at Hexatronics?',
+          'What are his daily drivers?',
+          'Is Nigel available for hire?'
+        ],
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
@@ -238,7 +284,7 @@ Would you like to examine one of these architectures in detail, or would you lik
       {/* 1. Floating Launch Pill / Button (24/7 AI Online Indicator) */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={handleOpen}
           className="ai-assistant-trigger"
           title="Open 24/7 AI Systems Assistant (John Nigel Landingin Representative)"
           style={{
@@ -362,7 +408,7 @@ Would you like to examine one of these architectures in detail, or would you lik
                 <RefreshCw size={14} />
               </button>
               <button
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 className="icon-btn"
                 style={{ width: '34px', height: '34px' }}
                 title="Minimize assistant"
@@ -444,7 +490,47 @@ Would you like to examine one of these architectures in detail, or would you lik
                 }}>
                   {m.text}
                 </div>
-                <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: '0.2rem', fontFamily: 'var(--font-mono)' }}>
+
+                {/* Follow-up quick action prompts */}
+                {m.sender === 'assistant' && m.followUp && m.followUp.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginTop: '0.5rem', maxWidth: '92%' }}>
+                    {m.followUp.map((chip, fIdx) => (
+                      <button
+                        key={fIdx}
+                        onClick={() => {
+                          if (chip === 'View Capstone GitHub') {
+                            window.open('https://github.com/HaxoveloOfficial/transport-delivery-system-', '_blank');
+                          } else if (chip === 'Download Resume PDF') {
+                            window.open('assets/John_Nigel_Landingin_Resume.pdf', '_blank');
+                          } else {
+                            handleSend(chip);
+                          }
+                        }}
+                        style={{
+                          fontSize: '0.74rem',
+                          fontFamily: 'var(--font-mono)',
+                          padding: '0.25rem 0.6rem',
+                          minHeight: '28px',
+                          background: 'var(--bg-card-sub)',
+                          border: '1px solid var(--accent-orange)',
+                          color: 'var(--accent-orange)',
+                          borderRadius: '9999px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          fontWeight: 700
+                        }}
+                        title={`Click to ask: "${chip}"`}
+                      >
+                        <span>{chip}</span>
+                        <ArrowUpRight size={11} />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <span style={{ fontSize: '0.68rem', color: 'var(--text-dim)', marginTop: '0.25rem', fontFamily: 'var(--font-mono)' }}>
                   {m.timestamp}
                 </span>
               </div>

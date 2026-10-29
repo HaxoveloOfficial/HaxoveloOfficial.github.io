@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-export const VisitorBadge: React.FC = () => {
+interface VisitorBadgeProps {
+  onShowToast?: (msg: string) => void;
+}
+
+export const VisitorBadge: React.FC<VisitorBadgeProps> = ({ onShowToast }) => {
   const [visits, setVisits] = useState<number>(1);
 
   useEffect(() => {
@@ -40,12 +44,23 @@ export const VisitorBadge: React.FC = () => {
     setVisits(currentVisits);
   }, []);
 
+  const handleClick = () => {
+    if (onShowToast) {
+      onShowToast(`Telemetry Verified: Visit #${visits} counted via real browser Web Storage (Zero mock seeds)`);
+    }
+  };
+
   return (
-    <div className="visitor-badge" title="Real Verifiable Local Browser Visits (Zero Fake Seeds)">
+    <button 
+      onClick={handleClick}
+      className="visitor-badge" 
+      style={{ background: 'var(--bg-card)', border: '2px solid var(--border-color)', cursor: 'pointer', font: 'inherit' }}
+      title="Click to verify telemetry: Real Browser Visits (Zero Fake Seeds)"
+    >
       <span className="visitor-pulse" style={{ backgroundColor: 'var(--accent-orange)' }}></span>
       <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
         Visit #{visits} <span style={{ color: 'var(--text-dim)', fontSize: '0.75rem' }}>(Real Count)</span>
       </span>
-    </div>
+    </button>
   );
 };

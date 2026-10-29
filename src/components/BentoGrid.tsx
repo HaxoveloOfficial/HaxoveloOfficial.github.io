@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PortfolioConfig } from '../types/portfolio';
-import { Folder, User, Box, Award, Layers, Terminal, ExternalLink, Code, Network, Landmark, Car } from 'lucide-react';
+import { Folder, Box, Layers, Terminal, ExternalLink, Code, Network, Landmark, Car } from 'lucide-react';
 
 interface BentoGridProps {
   config: PortfolioConfig;
@@ -8,7 +8,7 @@ interface BentoGridProps {
 }
 
 export const BentoGrid: React.FC<BentoGridProps> = ({ config, onOpenProject }) => {
-  const { projects, services, credentials } = config;
+  const { projects } = config;
   const [filter, setFilter] = useState<string>('all');
 
   const capstone = projects.find(p => p.id === 'logistics');
@@ -24,11 +24,11 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ config, onOpenProject }) =
   });
 
   return (
-    <section className="bento-grid" aria-label="Portfolio Bento Matrix">
+    <section className="bento-grid" aria-label="Portfolio Bento Matrix" id="bento-projects">
       
       {/* 1. Flagship Capstone Project Card (2 columns) */}
       {capstone && (
-        <article className="bento-card bento-card--featured" id="bento-projects">
+        <article className="bento-card bento-card--featured" style={{ gridColumn: '1 / -1' }}>
           <div className="bento-card__head">
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
               <span style={{ color: 'var(--accent-orange)' }}>
@@ -165,115 +165,6 @@ export const BentoGrid: React.FC<BentoGridProps> = ({ config, onOpenProject }) =
           </div>
         </article>
       ))}
-
-      {/* 3. About & Physical Grounding Card */}
-      <article className="bento-card" id="bento-about">
-        <div className="bento-card__head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ color: 'var(--accent-yellow)' }}>
-              <User size={20} />
-            </span>
-            <span className="bento-card-title">ABOUT & GROUND TRUTH</span>
-          </div>
-        </div>
-        <p className="bento-card-sub">Engineering philosophy & physical hardware context.</p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <p style={{ fontSize: '1rem', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-            I am an Information Technology graduate from <strong>STI College Tarlac</strong>. I focus on software that survives the real world: offline desktop architectures, relational databases, real-time 3D models, and physical PC hardware.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', paddingTop: '1.25rem', borderTop: '2px solid var(--border-color)' }}>
-            <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-orange)' }}>486</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>OJT Hours</div>
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-yellow)' }}>STI</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>BS IT 2026</div>
-            </div>
-            <div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 800, color: 'var(--accent-blue)' }}>100%</div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase' }}>Hardware Fluency</div>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      {/* 4. Credentials & Degrees Card */}
-      <article className="bento-card" id="bento-credentials">
-        <div className="bento-card__head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ color: 'var(--accent-yellow)' }}>
-              <Award size={20} />
-            </span>
-            <span className="bento-card-title">CREDENTIALS</span>
-          </div>
-          <span className="bento-badge" style={{ color: 'var(--accent-yellow)' }}>VERIFIED</span>
-        </div>
-        <p className="bento-card-sub">Formal degree, vendor certificates, and enterprise hours.</p>
-
-        <div className="credentials-bento-list">
-          {credentials.map((cred, i) => (
-            <div key={i} className="cred-row-item" style={{ border: '2px solid var(--border-color)' }}>
-              <div className="cred-row-info">
-                <span className="cred-row-title" style={{ fontSize: '0.95rem' }}>{cred.title}</span>
-                <span className="cred-row-sub" style={{ fontSize: '0.8rem' }}>{cred.issuer} • {cred.year}</span>
-              </div>
-              <span className="cred-pill" style={{ background: 'var(--accent-yellow-dim)', color: 'var(--accent-yellow)' }}>{cred.badge}</span>
-            </div>
-          ))}
-        </div>
-      </article>
-
-      {/* 5. Services & Capabilities Card */}
-      <article className="bento-card" id="bento-services">
-        <div className="bento-card__head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ color: 'var(--accent-blue)' }}>
-              <Layers size={20} />
-            </span>
-            <span className="bento-card-title">CAPABILITIES & SERVICES</span>
-          </div>
-        </div>
-        <p className="bento-card-sub">What I construct, engineer, and deploy for enterprise teams.</p>
-
-        <ol className="services-bento-list">
-          {services.map((serv, i) => (
-            <li key={i} className="service-row" style={{ borderBottom: '2px solid var(--border-color)' }}>
-              <div className="service-row-left">
-                <span className="service-name" style={{ fontSize: '1.05rem' }}>{serv.name}</span>
-                <span className="service-desc" style={{ fontSize: '0.85rem' }}>{serv.desc}</span>
-              </div>
-              <span className="service-num" style={{ color: 'var(--accent-blue)' }}>{serv.num}</span>
-            </li>
-          ))}
-        </ol>
-      </article>
-
-      {/* 6. Hardware Bench Diagnostics */}
-      <article className="bento-card">
-        <div className="bento-card__head">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ color: 'var(--accent-orange)' }}>
-              <Terminal size={20} />
-            </span>
-            <span className="bento-card-title">PHYSICAL HARDWARE BENCH</span>
-          </div>
-          <span className="bento-badge" style={{ color: 'var(--accent-orange)' }}>BENCH LAB</span>
-        </div>
-        <p className="bento-card-sub">Motherboard diagnostics, POST troubleshooting, thermal paste & LAN cabling.</p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ padding: '1rem', background: 'var(--bg-card-sub)', border: '2px solid var(--border-color)', borderRadius: '14px' }}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-orange)', marginBottom: '0.35rem' }}>
-              Component Seating & Multimeter Testing
-            </div>
-            <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-              Hands-on diagnostic methodology: CPU pin inspection, memory channel POST troubleshooting, thermal cycle monitoring, and RJ45 (T568B) structured cabling termination.
-            </p>
-          </div>
-        </div>
-      </article>
 
     </section>
   );

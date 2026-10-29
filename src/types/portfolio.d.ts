@@ -118,6 +118,7 @@ export interface ChatMessage {
   sender: 'user' | 'assistant' | 'system';
   text: string;
   timestamp: string;
+  followUp?: string[];
 }
 
 

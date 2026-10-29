@@ -4,6 +4,7 @@ import { PortfolioConfig, SessionRole } from './types/portfolio';
 import { Sidebar } from './components/Sidebar';
 import { DailyDrivers } from './components/DailyDrivers';
 import { BentoGrid } from './components/BentoGrid';
+import { BentoServicesMatrix } from './components/BentoServicesMatrix';
 import { SystemDiagnostics } from './components/SystemDiagnostics';
 import { InteractiveTerminal } from './components/InteractiveTerminal';
 import { ProjectInspectorModal } from './components/ProjectInspectorModal';
@@ -51,6 +52,7 @@ export const App: React.FC = () => {
   });
 
   const [isAdminDeckOpen, setIsAdminDeckOpen] = useState<boolean>(false);
+  const [isAiOpen, setIsAiOpen] = useState<boolean>(false);
 
   // Modals & Feedback
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
@@ -269,7 +271,7 @@ export const App: React.FC = () => {
               <span>{config.hero.ctaPrimary.text}</span>
               <ArrowUpRight size={18} />
             </a>
-            <a href={config.hero.ctaSecondary.href} download="John_Nigel_Landingin_Resume.pdf" className="bento-btn bento-btn--outline">
+            <a href={config.hero.ctaSecondary.href} target="_blank" rel="noopener noreferrer" download="John_Nigel_Landingin_Resume.pdf" className="bento-btn bento-btn--outline">
               <Download size={17} />
               <span>Resume (PDF)</span>
             </a>
@@ -277,7 +279,7 @@ export const App: React.FC = () => {
         </header>
 
         {/* Daily Drivers Ribbon */}
-        <DailyDrivers />
+        <DailyDrivers onShowToast={showToast} />
 
         {/* Viewport Layout Mode Switcher */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', padding: '0.65rem 1.25rem', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-pill)', border: '1px solid var(--border-color)', margin: '1.25rem 0 0.5rem' }}>
@@ -321,6 +323,7 @@ export const App: React.FC = () => {
             isGuest={isGuest}
             onOpenProjectInspector={(id) => setActiveProjectId(id)}
             onOpenGateway={() => setIsGatewayOpen(true)}
+            onOpenAiAssistant={() => setIsAiOpen(true)}
             onShowToast={showToast}
           />
         ) : (
@@ -344,6 +347,9 @@ export const App: React.FC = () => {
           <SpotlightDemo />
         </section>
 
+        {/* Credentials, Services & Ground Truth Bench Matrix (Always Present in Both Views) */}
+        <BentoServicesMatrix config={config} onShowToast={showToast} />
+
         {/* Live System Diagnostics Widget (100% Real Measured Browser Telemetry) */}
         <SystemDiagnostics />
 
@@ -362,10 +368,11 @@ export const App: React.FC = () => {
                 <Mail size={18} />
                 <span>{config.profile.email}</span>
               </a>
-              <button onClick={() => {
-                const trigger = document.querySelector('.ai-assistant-trigger') as HTMLButtonElement;
-                if (trigger) trigger.click();
-              }} className="bento-btn bento-btn--lg" style={{ background: 'var(--accent-blue-dim)', border: '2px solid var(--accent-blue)', color: 'var(--accent-blue)', fontWeight: 700 }}>
+              <button 
+                onClick={() => setIsAiOpen(true)} 
+                className="bento-btn bento-btn--lg" 
+                style={{ background: 'var(--accent-blue-dim)', border: '2px solid var(--accent-blue)', color: 'var(--accent-blue)', fontWeight: 700 }}
+              >
                 <Bot size={18} />
                 <span>Chat with 24/7 AI Assistant</span>
               </button>
@@ -388,10 +395,13 @@ export const App: React.FC = () => {
       </main>
 
       {/* Floating Visitor Badge (Real Measured Count) */}
-      <VisitorBadge />
+      <VisitorBadge onShowToast={showToast} />
 
       {/* 24/7 AI Systems Assistant (Non-Generic, Project-Grounded, Direct Inquiry Capture) */}
       <AiAssistant 
+        isOpen={isAiOpen}
+        onOpen={() => setIsAiOpen(true)}
+        onClose={() => setIsAiOpen(false)}
         onShowToast={showToast} 
         onOpenGateway={() => setIsGatewayOpen(true)}
       />

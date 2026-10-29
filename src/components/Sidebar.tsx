@@ -33,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { profile } = config;
   const [liveTime, setLiveTime] = useState<string>('');
+  const [activeSection, setActiveSection] = useState<string>('#home');
 
   useEffect(() => {
     const updateTime = () => {
@@ -55,6 +56,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Track scroll position to update active navigation item
+  useEffect(() => {
+    const sections = ['#home', '#bento-projects', '#bento-services', '#bento-credentials', '#bento-about', '#contact'];
+    
+    const handleScroll = () => {
+      const scrollPos = window.scrollY + 220;
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const el = document.querySelector(sections[i]);
+        if (el) {
+          const top = (el as HTMLElement).offsetTop;
+          if (scrollPos >= top) {
+            setActiveSection(sections[i]);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    setActiveSection(href);
+    const target = document.querySelector(href);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth' });
+      history.replaceState(null, '', href);
+    }
+  };
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(profile.email);
@@ -239,37 +272,61 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <nav className="sidebar-nav">
           <ul className="sidebar-nav-list">
             <li>
-              <a href="#home" className="nav-link active">
+              <a 
+                href="#home" 
+                onClick={(e) => handleNavClick(e, '#home')}
+                className={`nav-link ${activeSection === '#home' ? 'active' : ''}`}
+              >
                 <Cpu size={19} />
                 <span>Overview</span>
               </a>
             </li>
             <li>
-              <a href="#bento-projects" className="nav-link">
+              <a 
+                href="#bento-projects" 
+                onClick={(e) => handleNavClick(e, '#bento-projects')}
+                className={`nav-link ${activeSection === '#bento-projects' ? 'active' : ''}`}
+              >
                 <Folder size={19} />
                 <span>Projects ({config.projects.length})</span>
               </a>
             </li>
             <li>
-              <a href="#bento-services" className="nav-link">
+              <a 
+                href="#bento-services" 
+                onClick={(e) => handleNavClick(e, '#bento-services')}
+                className={`nav-link ${activeSection === '#bento-services' ? 'active' : ''}`}
+              >
                 <Layers size={19} />
                 <span>Services</span>
               </a>
             </li>
             <li>
-              <a href="#bento-credentials" className="nav-link">
+              <a 
+                href="#bento-credentials" 
+                onClick={(e) => handleNavClick(e, '#bento-credentials')}
+                className={`nav-link ${activeSection === '#bento-credentials' ? 'active' : ''}`}
+              >
                 <Award size={19} />
                 <span>Credentials</span>
               </a>
             </li>
             <li>
-              <a href="#bento-about" className="nav-link">
+              <a 
+                href="#bento-about" 
+                onClick={(e) => handleNavClick(e, '#bento-about')}
+                className={`nav-link ${activeSection === '#bento-about' ? 'active' : ''}`}
+              >
                 <User size={19} />
                 <span>About & Bench</span>
               </a>
             </li>
             <li>
-              <a href="#contact" className="nav-link">
+              <a 
+                href="#contact" 
+                onClick={(e) => handleNavClick(e, '#contact')}
+                className={`nav-link ${activeSection === '#contact' ? 'active' : ''}`}
+              >
                 <Mail size={19} />
                 <span>Contact</span>
               </a>
