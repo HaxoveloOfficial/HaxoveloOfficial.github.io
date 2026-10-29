@@ -134,6 +134,24 @@ export const AccessGateway: React.FC<AccessGatewayProps> = ({
       filtered.push(newAccount);
       localStorage.setItem('jnl_registered_accounts', JSON.stringify(filtered));
 
+      // Also register in captured emails for the Operator Dashboard
+      try {
+        const rawEmails = localStorage.getItem('jnl_captured_emails');
+        const emailList = rawEmails ? JSON.parse(rawEmails) : [];
+        emailList.unshift({
+          id: `mail-${Date.now()}`,
+          email: cleanEmail,
+          name: cleanUsername,
+          source: 'registration_otp',
+          message: 'Account created and verified via 6-digit Gmail OTP.',
+          timestamp: new Date().toISOString(),
+          status: 'new'
+        });
+        localStorage.setItem('jnl_captured_emails', JSON.stringify(emailList));
+      } catch (errCapture) {
+        console.warn("Could not append to captured emails", errCapture);
+      }
+
       // Grant authorized session
       onSelectRole('authorized', cleanUsername, cleanEmail);
       onShowToast(`Account Authorized! Welcome, @${cleanUsername}`);

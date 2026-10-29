@@ -101,3 +101,23 @@ export interface AuthSession {
   loginTime: string;
 }
 
+export type EmailSource = 'registration_otp' | 'ai_chat_inquiry' | 'contact_form' | 'terminal';
+
+export interface CapturedEmail {
+  id: string;
+  email: string;
+  name?: string;
+  source: EmailSource;
+  message?: string;
+  timestamp: string;
+  status: 'new' | 'reviewed' | 'contacted';
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'assistant' | 'system';
+  text: string;
+  timestamp: string;
+}
+
+

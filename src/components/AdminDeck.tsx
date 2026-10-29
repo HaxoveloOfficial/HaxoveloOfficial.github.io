@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Copy, Plus, Sliders, Lock, Users, Trash2 } from 'lucide-react';
-import { PortfolioConfig, ProjectItem, RegisteredAccount } from '../types/portfolio';
+import { X, Save, Copy, Plus, Sliders, Lock, Users, Trash2, Mail, Download, Search, CheckCircle2, MessageSquare, ExternalLink } from 'lucide-react';
+import { PortfolioConfig, ProjectItem, RegisteredAccount, CapturedEmail } from '../types/portfolio';
 
 interface AdminDeckProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
   onLogout,
   onShowToast
 }) => {
-  const [activeTab, setActiveTab] = useState<'content' | 'projects' | 'snippets' | 'accounts'>('content');
+  const [activeTab, setActiveTab] = useState<'emails' | 'content' | 'projects' | 'accounts' | 'snippets'>('emails');
   
   // Local editable form states
   const [fullName, setFullName] = useState(config.profile.fullName);
@@ -38,17 +38,57 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
   // Registered accounts state
   const [accounts, setAccounts] = useState<RegisteredAccount[]>([]);
 
+  // Captured Emails / Leads state
+  const [emails, setEmails] = useState<CapturedEmail[]>([]);
+  const [emailSearch, setEmailSearch] = useState<string>('');
+
+  // Load emails & accounts on open
   useEffect(() => {
     if (isOpen) {
+      // 1. Load accounts
       try {
-        const raw = localStorage.getItem('jnl_registered_accounts');
-        if (raw) {
-          setAccounts(JSON.parse(raw));
+        const rawAcc = localStorage.getItem('jnl_registered_accounts');
+        if (rawAcc) {
+          setAccounts(JSON.parse(rawAcc));
         } else {
           setAccounts([]);
         }
       } catch {
         setAccounts([]);
+      }
+
+      // 2. Load captured emails
+      try {
+        const rawEmails = localStorage.getItem('jnl_captured_emails');
+        const list: CapturedEmail[] = rawEmails ? JSON.parse(rawEmails) : [];
+
+        // Check if any registered accounts need syncing into captured emails
+        const rawAcc = localStorage.getItem('jnl_registered_accounts');
+        const accList: RegisteredAccount[] = rawAcc ? JSON.parse(rawAcc) : [];
+        let updated = false;
+
+        accList.forEach(acc => {
+          if (!list.some(e => e.email.toLowerCase() === acc.email.toLowerCase())) {
+            list.push({
+              id: `acc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              email: acc.email,
+              name: acc.username,
+              source: 'registration_otp',
+              message: 'Verified account created via Gmail OTP.',
+              timestamp: acc.createdAt,
+              status: 'new'
+            });
+            updated = true;
+          }
+        });
+
+        if (updated) {
+          localStorage.setItem('jnl_captured_emails', JSON.stringify(list));
+        }
+
+        setEmails(list);
+      } catch {
+        setEmails([]);
       }
     }
   }, [isOpen]);
@@ -120,10 +160,67 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
     onShowToast(`Account @${username} removed.`);
   };
 
+  const handleDeleteEmail = (id: string) => {
+    const updated = emails.filter(e => e.id !== id);
+    setEmails(updated);
+    localStorage.setItem('jnl_captured_emails', JSON.stringify(updated));
+    onShowToast("Entry removed from email log.");
+  };
+
+  const handleToggleEmailStatus = (id: string) => {
+    const updated = emails.map(item => {
+      if (item.id === id) {
+        const nextStatus: 'new' | 'reviewed' | 'contacted' = item.status === 'new' ? 'contacted' : 'new';
+        return { ...item, status: nextStatus };
+      }
+      return item;
+    });
+    setEmails(updated);
+    localStorage.setItem('jnl_captured_emails', JSON.stringify(updated));
+    onShowToast("Status updated.");
+  };
+
+  const handleExportCsv = () => {
+    if (emails.length === 0) {
+      onShowToast("No email entries to export.");
+      return;
+    }
+
+    const headers = ["Timestamp", "Email", "Name/Username", "Source", "Status", "Message"];
+    const rows = emails.map(e => [
+      `"${new Date(e.timestamp).toLocaleString()}"`,
+      `"${e.email}"`,
+      `"${e.name || ''}"`,
+      `"${e.source}"`,
+      `"${e.status}"`,
+      `"${(e.message || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `jnl_leads_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    onShowToast("Exported captured emails CSV!");
+  };
+
   const copySnippet = (code: string, label: string) => {
     navigator.clipboard.writeText(code);
     onShowToast(`Copied ${label} snippet to clipboard!`);
   };
+
+  const filteredEmails = emails.filter(item => {
+    if (!emailSearch) return true;
+    const term = emailSearch.toLowerCase();
+    return (
+      item.email.toLowerCase().includes(term) ||
+      (item.name && item.name.toLowerCase().includes(term)) ||
+      (item.message && item.message.toLowerCase().includes(term))
+    );
+  });
 
   return (
     <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 900 }}>
@@ -133,9 +230,9 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <Sliders size={22} color="var(--accent-orange)" />
             <div>
-              <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Master Admin Command Deck</h3>
+              <h3 style={{ fontSize: '1.35rem', fontWeight: 800 }}>Master Operator Command Deck</h3>
               <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
-                Authenticated Operator Session // Scalable Configuration & Future Modules
+                John Nigel Landingin • Live Site Telemetry, Emails & Configuration
               </span>
             </div>
           </div>
@@ -152,6 +249,14 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
 
         {/* Tab Controls */}
         <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '2px solid var(--border-color)', background: 'var(--bg-card-sub)', padding: '0 1rem' }}>
+          <button 
+            onClick={() => setActiveTab('emails')} 
+            className={`filter-pill ${activeTab === 'emails' ? 'active' : ''}`}
+            style={{ borderRadius: '0', borderBottom: 'none', minHeight: '48px', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
+          >
+            <Mail size={16} />
+            <span>Captured Emails ({emails.length})</span>
+          </button>
           <button 
             onClick={() => setActiveTab('content')} 
             className={`filter-pill ${activeTab === 'content' ? 'active' : ''}`}
@@ -178,13 +283,213 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             className={`filter-pill ${activeTab === 'snippets' ? 'active' : ''}`}
             style={{ borderRadius: '0', borderBottom: 'none', minHeight: '48px' }}
           >
-            Copy-Paste Scalability Snippets
+            Copy-Paste Scalability
           </button>
         </div>
 
         {/* Body */}
         <div className="modal-body">
-          {/* Tab 1: Live Content Editor */}
+          {/* TAB 1: CAPTURED EMAILS & INBOX DASHBOARD (CORE NEW FEATURE) */}
+          {activeTab === 'emails' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div>
+                  <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Mail size={20} color="var(--accent-orange)" />
+                    <span>Real-Time Inbound Communications & Lead Log</span>
+                  </h4>
+                  <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
+                    Track all visitor email addresses entered via <strong>Account Registration (OTP)</strong>, <strong>24/7 AI Chat Assistant</strong>, or direct inquiry.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <button 
+                    onClick={handleExportCsv}
+                    className="bento-btn bento-btn--sm bento-btn--accent"
+                    title="Export entire list as CSV spreadsheet"
+                  >
+                    <Download size={15} />
+                    <span>Export CSV</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  className="admin-input"
+                  style={{ width: '100%', paddingLeft: '2.5rem', minHeight: '42px' }}
+                  placeholder="Search emails, visitor names, or messages..."
+                  value={emailSearch}
+                  onChange={(e) => setEmailSearch(e.target.value)}
+                />
+                <Search size={16} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-dim)' }} />
+              </div>
+
+              {/* Email List Grid */}
+              {filteredEmails.length === 0 ? (
+                <div style={{
+                  padding: '3rem 2rem',
+                  textAlign: 'center',
+                  backgroundColor: 'var(--bg-card-sub)',
+                  borderRadius: 'var(--radius-md)',
+                  border: '1px dashed var(--border-color)',
+                  color: 'var(--text-dim)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <Mail size={32} color="var(--accent-orange)" />
+                  <div>
+                    <h5 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.2rem' }}>
+                      {emailSearch ? "No matching emails found" : "No captured emails yet"}
+                    </h5>
+                    <p style={{ fontSize: '0.88rem' }}>
+                      When visitors register an account or type their email in the 24/7 AI Assistant, their details appear here in real-time.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', maxHeight: '420px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+                  {filteredEmails.map((item) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        padding: '1.25rem',
+                        borderRadius: 'var(--radius-md)',
+                        backgroundColor: 'var(--bg-card-sub)',
+                        border: item.status === 'new' ? '2px solid var(--accent-orange)' : '1px solid var(--border-color)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.6rem'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <span style={{
+                            fontSize: '0.72rem',
+                            fontFamily: 'var(--font-mono)',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                            fontWeight: 800,
+                            backgroundColor: item.source === 'registration_otp' ? 'var(--accent-blue-dim)' : 'var(--accent-orange-dim)',
+                            color: item.source === 'registration_otp' ? 'var(--accent-blue)' : 'var(--accent-orange)',
+                            border: `1px solid ${item.source === 'registration_otp' ? 'var(--accent-blue)' : 'var(--accent-orange)'}`
+                          }}>
+                            {item.source === 'registration_otp' ? 'GMAIL OTP ACCOUNT' : '24/7 AI ASSISTANT INQUIRY'}
+                          </span>
+
+                          <span style={{
+                            fontSize: '0.72rem',
+                            fontFamily: 'var(--font-mono)',
+                            padding: '0.2rem 0.5rem',
+                            borderRadius: '4px',
+                            fontWeight: 700,
+                            backgroundColor: item.status === 'new' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                            color: item.status === 'new' ? 'var(--success-green)' : 'var(--text-dim)',
+                            border: `1px solid ${item.status === 'new' ? 'var(--success-green)' : 'var(--border-color)'}`
+                          }}>
+                            {item.status === 'new' ? '● NEW LEAD' : '✓ CONTACTED'}
+                          </span>
+                        </div>
+
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
+                          {new Date(item.timestamp).toLocaleString('en-US', { timeZone: 'Asia/Manila' })} PST
+                        </span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div>
+                          <a
+                            href={`mailto:${item.email}?subject=Regarding your inquiry on John Nigel Landingin's Portfolio`}
+                            style={{
+                              fontSize: '1.05rem',
+                              fontWeight: 800,
+                              color: 'var(--accent-blue)',
+                              textDecoration: 'none'
+                            }}
+                          >
+                            {item.email}
+                          </a>
+                          {item.name && (
+                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginLeft: '0.5rem' }}>
+                              (@{item.name})
+                            </span>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <a
+                            href={`mailto:${item.email}?subject=Regarding your inquiry on John Nigel Landingin's Portfolio`}
+                            className="bento-btn bento-btn--sm bento-btn--accent"
+                            style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem', minHeight: '32px' }}
+                            title="Open Gmail composer directly"
+                          >
+                            <ExternalLink size={13} />
+                            <span>Reply via Gmail</span>
+                          </a>
+
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(item.email);
+                              onShowToast(`Copied ${item.email}`);
+                            }}
+                            className="bento-btn bento-btn--sm bento-btn--outline"
+                            style={{ fontSize: '0.75rem', padding: '0.3rem 0.75rem', minHeight: '32px' }}
+                            title="Copy email to clipboard"
+                          >
+                            <Copy size={13} />
+                            <span>Copy</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleToggleEmailStatus(item.id)}
+                            className="icon-btn"
+                            style={{ width: '32px', height: '32px', color: item.status === 'new' ? 'var(--success-green)' : 'var(--text-dim)' }}
+                            title="Toggle Contacted status"
+                          >
+                            <CheckCircle2 size={15} />
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteEmail(item.id)}
+                            className="icon-btn"
+                            style={{ width: '32px', height: '32px', color: '#ef4444', borderColor: '#ef4444' }}
+                            title="Delete this entry"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {item.message && (
+                        <div style={{
+                          backgroundColor: 'var(--bg-app)',
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '6px',
+                          border: '1px solid var(--border-color)',
+                          fontSize: '0.85rem',
+                          color: 'var(--text-muted)',
+                          lineHeight: 1.5,
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.4rem'
+                        }}>
+                          <MessageSquare size={14} color="var(--accent-orange)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                          <span>{item.message}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Live Content Editor */}
           {activeTab === 'content' && (
             <form onSubmit={handleSaveContent} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div className="admin-input-group">
@@ -221,7 +526,7 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             </form>
           )}
 
-          {/* Tab 2: Add Project Form */}
+          {/* Tab 3: Add Project Form */}
           {activeTab === 'projects' && (
             <form onSubmit={handleAddProject} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
@@ -262,7 +567,7 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             </form>
           )}
 
-          {/* Tab 3: Verified Accounts Management */}
+          {/* Tab 4: Verified Accounts Management */}
           {activeTab === 'accounts' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -320,7 +625,7 @@ export const AdminDeck: React.FC<AdminDeckProps> = ({
             </div>
           )}
 
-          {/* Tab 4: Copy-Paste Scalability Snippets */}
+          {/* Tab 5: Copy-Paste Scalability Snippets */}
           {activeTab === 'snippets' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>

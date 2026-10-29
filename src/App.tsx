@@ -10,8 +10,9 @@ import { ProjectInspectorModal } from './components/ProjectInspectorModal';
 import { VisitorBadge } from './components/VisitorBadge';
 import { AccessGateway } from './components/AccessGateway';
 import { AdminDeck } from './components/AdminDeck';
+import { AiAssistant } from './components/AiAssistant';
 import { Default as SpotlightDemo } from './components/ui/demo';
-import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock, UserCheck, Shield } from 'lucide-react';
+import { ArrowUpRight, Download, Mail, Sparkles, ShieldCheck, Lock, Unlock, UserCheck, Shield, Bot } from 'lucide-react';
 
 export const App: React.FC = () => {
   // Live editable config state
@@ -311,6 +312,13 @@ export const App: React.FC = () => {
                 <span>{config.profile.email}</span>
               </a>
               <button onClick={() => {
+                const trigger = document.querySelector('.ai-assistant-trigger') as HTMLButtonElement;
+                if (trigger) trigger.click();
+              }} className="bento-btn bento-btn--lg" style={{ background: 'var(--accent-blue-dim)', border: '2px solid var(--accent-blue)', color: 'var(--accent-blue)', fontWeight: 700 }}>
+                <Bot size={18} />
+                <span>Chat with 24/7 AI Assistant</span>
+              </button>
+              <button onClick={() => {
                 navigator.clipboard.writeText(config.profile.email);
                 showToast(`Copied to clipboard: ${config.profile.email}`);
               }} className="bento-btn bento-btn--outline bento-btn--lg">
@@ -330,6 +338,12 @@ export const App: React.FC = () => {
 
       {/* Floating Visitor Badge (Real Measured Count) */}
       <VisitorBadge />
+
+      {/* 24/7 AI Systems Assistant (Non-Generic, Project-Grounded, Direct Inquiry Capture) */}
+      <AiAssistant 
+        onShowToast={showToast} 
+        onOpenGateway={() => setIsGatewayOpen(true)}
+      />
 
       {/* Entrance Access Gateway & Auth System (Operator / Gmail OTP Account / Guest) */}
       <AccessGateway 
